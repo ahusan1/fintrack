@@ -1,0 +1,6 @@
+{
+  "name": "Remix: SpendWise Expense Tracker",
+  "description": "A modern, responsive fintech dashboard for tracking income and expenses with real-time Firebase sync and detailed analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
