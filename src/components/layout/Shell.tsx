@@ -104,14 +104,14 @@ export function Shell() {
           <div className="flex items-center gap-3 px-4 py-2 border-t border-slate-800 pt-4 mt-4">
             <div className="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 overflow-hidden ring-2 ring-slate-800">
               <img
-                src={user?.photoURL || "https://via.placeholder.com/40"}
+                src={user?.user_metadata?.avatar_url || "https://via.placeholder.com/40"}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate text-white">
-                {user?.displayName}
+                {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]}
               </p>
               <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500 truncate">
                 PRO PLAN
@@ -134,21 +134,21 @@ export function Shell() {
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between px-6 pt-10 pb-4 bg-slate-50 dark:bg-slate-950 top-0 z-30 sticky">
           <div className="flex flex-col">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Hello, {user?.displayName?.split(" ")?.[0] || "User"}
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white truncate max-w-[200px]">
+              Hello, {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "User").split(" ")[0]}
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button className="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors relative">
               <Bell size={22} />
               <span className="absolute top-2.5 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
             </button>
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-200 shadow-sm">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-200 shadow-sm shrink-0">
               <img
                 src={
-                  user?.photoURL ||
+                  user?.user_metadata?.avatar_url ||
                   "https://ui-avatars.com/api/?name=" +
-                    encodeURIComponent(user?.displayName || "User") +
+                    encodeURIComponent(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "User") +
                     "&background=10b981&color=fff"
                 }
                 alt="Profile"
@@ -166,13 +166,13 @@ export function Shell() {
       </div>
 
       {/* Bottom Navigation - Mobile Only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-50 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-50 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
         <div className="flex items-center justify-between relative">
-          <div className="flex w-2/5 justify-between">
+          <div className="flex w-2/5 justify-around">
             <Link
               to="/dashboard"
               className={cn(
-                "flex flex-col items-center gap-1.5 transition-colors p-2 flex-1",
+                "flex flex-col items-center gap-1 transition-colors py-2 px-4 select-none touch-manipulation",
                 activeTab === "dashboard"
                   ? "text-emerald-600"
                   : "text-slate-400",
@@ -191,7 +191,7 @@ export function Shell() {
             <Link
               to="/transactions"
               className={cn(
-                "flex flex-col items-center gap-1.5 transition-colors p-2 flex-1",
+                "flex flex-col items-center gap-1 transition-colors py-2 px-4 select-none touch-manipulation",
                 activeTab === "transactions"
                   ? "text-emerald-600"
                   : "text-slate-400",
@@ -211,16 +211,16 @@ export function Shell() {
 
           <button
             onClick={triggerAdd}
-            className="absolute left-1/2 -top-10 -translate-x-1/2 w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-600/30 border-4 border-slate-50 dark:border-slate-950 active:scale-95 transition-transform z-10 touch-manipulation cursor-pointer"
+            className="absolute left-1/2 -top-8 -translate-x-1/2 w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-600/30 border-4 border-slate-50 dark:border-slate-900 active:scale-95 transition-transform z-[60] select-none touch-manipulation cursor-pointer"
           >
-            <Plus size={28} />
+            <Plus size={32} />
           </button>
 
-          <div className="flex w-2/5 justify-between">
+          <div className="flex w-2/5 justify-around">
             <Link
               to="/analytics"
               className={cn(
-                "flex flex-col items-center gap-1.5 transition-colors p-2 flex-1",
+                "flex flex-col items-center gap-1 transition-colors py-2 px-4 select-none touch-manipulation",
                 activeTab === "analytics"
                   ? "text-emerald-600"
                   : "text-slate-400",
@@ -239,7 +239,7 @@ export function Shell() {
             <Link
               to="/profile"
               className={cn(
-                "flex flex-col items-center gap-1.5 transition-colors p-2 flex-1",
+                "flex flex-col items-center gap-1 transition-colors py-2 px-4 select-none touch-manipulation",
                 activeTab === "profile" ? "text-emerald-600" : "text-slate-400",
               )}
             >
