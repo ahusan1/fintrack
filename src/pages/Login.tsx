@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { CreditCard, Github, AlertTriangle, ExternalLink, Mail, Lock } from "lucide-react";
+import { CreditCard, AlertTriangle, ExternalLink } from "lucide-react";
 
 export function Login() {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const { signInWithGoogle } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false);
   const isIframe = window.self !== window.top;
 
   useEffect(() => {
@@ -33,26 +30,6 @@ export function Login() {
         err.message ||
           "An error occurred during login. If you are in a preview iframe, try opening the app in a new tab.",
       );
-    }
-  };
-
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setError("Please fill in both email and password.");
-      return;
-    }
-    setError(null);
-    try {
-      if (isSignUp) {
-        await signUpWithEmail(email, password);
-        alert("Sign up successful! Please check your email to verify your account (if email verification is enabled in Supabase). Or try logging in now.");
-        setIsSignUp(false); // Switch to login after successful sort-of-signup
-      } else {
-        await signInWithEmail(email, password);
-      }
-    } catch (err: any) {
-      setError(err.message || "An error occurred with email authentication.");
     }
   };
 
@@ -105,55 +82,6 @@ export function Login() {
                 className="w-5 h-5"
               />
               Continue with Google
-            </button>
-          </div>
-
-          <div className="relative py-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-slate-100 dark:border-slate-800"></span>
-            </div>
-            <div className="relative flex justify-center text-[10px] uppercase">
-              <span className="bg-white dark:bg-slate-900 px-4 text-slate-400 font-bold tracking-[0.2em]">
-                Or {isSignUp ? "sign up" : "log in"} with email
-              </span>
-            </div>
-          </div>
-
-          <form onSubmit={handleEmailAuth} className="space-y-4">
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email address"
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
-              />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold transition-all active:scale-[0.98] shadow-lg shadow-emerald-500/20 text-sm"
-            >
-              {isSignUp ? "Sign Up" : "Log In"}
-            </button>
-          </form>
-
-          <div className="text-center">
-            <button
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-xs font-bold text-slate-500 hover:text-emerald-500 transition-colors"
-            >
-              {isSignUp ? "Already have an account? Log in" : "Don't have an account? Sign up"}
             </button>
           </div>
 
