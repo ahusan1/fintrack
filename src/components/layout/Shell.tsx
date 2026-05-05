@@ -172,7 +172,7 @@ export function Shell() {
             <Link
               to="/dashboard"
               className={cn(
-                "flex flex-col items-center justify-center gap-1 w-full h-full py-2 select-none touch-manipulation cursor-pointer",
+                "flex flex-col items-center justify-center gap-1 w-full h-full py-2",
                 activeTab === "dashboard"
                   ? "text-emerald-600"
                   : "text-slate-400",
@@ -191,7 +191,7 @@ export function Shell() {
             <Link
               to="/transactions"
               className={cn(
-                "flex flex-col items-center justify-center gap-1 w-full h-full py-2 select-none touch-manipulation cursor-pointer",
+                "flex flex-col items-center justify-center gap-1 w-full h-full py-2",
                 activeTab === "transactions"
                   ? "text-emerald-600"
                   : "text-slate-400",
@@ -211,7 +211,7 @@ export function Shell() {
 
           <button
             onClick={triggerAdd}
-            className="absolute left-1/2 -top-8 -translate-x-1/2 w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-600/30 border-4 border-slate-50 dark:border-slate-900 z-[60] select-none touch-manipulation cursor-pointer"
+            className="absolute left-1/2 -top-8 -translate-x-1/2 w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-600/30 border-4 border-slate-50 dark:border-slate-900 z-[60]"
           >
             <Plus size={32} />
           </button>
@@ -220,7 +220,7 @@ export function Shell() {
             <Link
               to="/analytics"
               className={cn(
-                "flex flex-col items-center justify-center gap-1 w-full h-full py-2 select-none touch-manipulation cursor-pointer",
+                "flex flex-col items-center justify-center gap-1 w-full h-full py-2",
                 activeTab === "analytics"
                   ? "text-emerald-600"
                   : "text-slate-400",
@@ -239,7 +239,7 @@ export function Shell() {
             <Link
               to="/profile"
               className={cn(
-                "flex flex-col items-center justify-center gap-1 w-full h-full py-2 select-none touch-manipulation cursor-pointer",
+                "flex flex-col items-center justify-center gap-1 w-full h-full py-2",
                 activeTab === "profile" ? "text-emerald-600" : "text-slate-400",
               )}
             >
