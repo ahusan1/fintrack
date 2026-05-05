@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { motion, useMotionValue, animate } from "motion/react";
 import {
   Search,
   MoreVertical,
@@ -20,6 +21,122 @@ interface TransactionListProps {
   onEdit: (transaction: Transaction) => void;
   onDelete: (id: string) => void;
 }
+
+const SwipeableTransactionItem = ({ 
+  transaction, 
+  onEdit, 
+  onDelete 
+}: { 
+  transaction: Transaction, 
+  onEdit: (t: Transaction) => void, 
+  onDelete: (id: string) => void 
+}) => {
+  const x = useMotionValue(0);
+
+  const handleDragEnd = (event: any, info: any) => {
+    const offset = info.offset.x;
+    const velocity = info.velocity.x;
+    
+    if (offset < -50 || velocity < -500) {
+      animate(x, -80, { type: "spring", stiffness: 400, damping: 30 }); // Left swipe -> reveals Edit (on the right)
+    } else if (offset > 50 || velocity > 500) {
+      animate(x, 80, { type: "spring", stiffness: 400, damping: 30 }); // Right swipe -> reveals Delete (on the left)
+    } else {
+      animate(x, 0, { type: "spring", stiffness: 400, damping: 30 });
+    }
+  };
+
+  const handleEdit = () => {
+    animate(x, 0);
+    onEdit(transaction);
+  };
+
+  const handleDelete = () => {
+    animate(x, 0);
+    onDelete(transaction.id);
+  };
+
+  return (
+    <div className="relative overflow-hidden border-b border-slate-100 dark:border-slate-800 last:border-0 group">
+      {/* Background Actions */}
+      <div className="absolute inset-0 flex justify-between">
+        {/* Revealed on Right Swipe (Drag Right -> offset > 0) */}
+        <button 
+          onClick={handleDelete}
+          className="w-[80px] flex items-center justify-center bg-rose-500 text-white"
+        >
+          <Trash2 size={20} />
+        </button>
+        {/* Revealed on Left Swipe (Drag Left -> offset < 0) */}
+        <button 
+          onClick={handleEdit}
+          className="w-[80px] flex items-center justify-center bg-blue-500 text-white"
+        >
+          <Edit2 size={20} />
+        </button>
+      </div>
+
+      <motion.div
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: -80, right: 80 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+        style={{ x }}
+        className="relative bg-white dark:bg-slate-900 w-full touch-pan-y"
+      >
+        <div className="flex flex-col p-4 active:bg-slate-50 dark:active:bg-slate-800/50 transition-colors">
+          <div className="flex items-center justify-between pointer-events-none">
+            <div className="flex items-center gap-3">
+              <div
+                className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm",
+                  transaction.type === "income"
+                    ? "bg-emerald-100 text-emerald-600"
+                    : "bg-rose-100 text-rose-600",
+                )}
+              >
+                {(() => {
+                  const Icon = CATEGORY_ICONS[transaction.category] || HelpCircle;
+                  return <Icon size={20} />;
+                })()}
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-sm text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                  {transaction.note || "Untitled"}
+                  {transaction.isRecurring && (
+                    <Repeat
+                      size={12}
+                      className="text-emerald-500"
+                      title={`Recurring ${transaction.recurringInterval}`}
+                    />
+                  )}
+                </span>
+                <span className="text-xs text-slate-500">{transaction.category}</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+              <span
+                className={cn(
+                  "font-bold text-sm",
+                  transaction.type === "income"
+                    ? "text-emerald-500"
+                    : "text-rose-500",
+                )}
+              >
+                {transaction.type === "income" ? "+" : "-"}
+                {formatCurrency(transaction.amount)}
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {format(new Date(transaction.date), "MMM dd")}
+              </span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 
 export function TransactionList({
   transactions,
@@ -129,58 +246,12 @@ export function TransactionList({
       <div className="md:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-800">
         {sortedTransactions.length > 0 ? (
           sortedTransactions.map((t) => (
-            <div
-              key={t.id}
-              className="flex flex-col p-4 active:bg-slate-50 dark:active:bg-slate-800/50 transition-colors cursor-pointer group"
-              onClick={() => onEdit(t)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm",
-                      t.type === "income"
-                        ? "bg-emerald-100 text-emerald-600"
-                        : "bg-rose-100 text-rose-600",
-                    )}
-                  >
-                    {(() => {
-                      const Icon = CATEGORY_ICONS[t.category] || HelpCircle;
-                      return <Icon size={20} />;
-                    })()}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-sm text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-                      {t.note || "Untitled"}
-                      {t.isRecurring && (
-                        <Repeat
-                          size={12}
-                          className="text-emerald-500"
-                          title={`Recurring ${t.recurringInterval}`}
-                        />
-                      )}
-                    </span>
-                    <span className="text-xs text-slate-500">{t.category}</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span
-                    className={cn(
-                      "font-bold text-sm",
-                      t.type === "income"
-                        ? "text-emerald-500"
-                        : "text-rose-500",
-                    )}
-                  >
-                    {t.type === "income" ? "+" : "-"}
-                    {formatCurrency(t.amount)}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-medium">
-                    {format(new Date(t.date), "MMM dd")}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <SwipeableTransactionItem 
+              key={t.id} 
+              transaction={t} 
+              onEdit={onEdit} 
+              onDelete={onDelete} 
+            />
           ))
         ) : (
           <div className="p-12 flex flex-col items-center justify-center text-slate-400 gap-3">
