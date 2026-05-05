@@ -2,6 +2,8 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { Shell } from "./components/layout/Shell";
+import { Privacy } from "./pages/Privacy";
+import { Terms } from "./pages/Terms";
 
 const Dashboard = lazy(() =>
   import("./pages/Dashboard").then((m) => ({ default: m.Dashboard })),
@@ -31,6 +33,8 @@ export default function App() {
         }
       >
         <Routes>
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           {!user ? (
             <Route path="*" element={<Login />} />
           ) : (

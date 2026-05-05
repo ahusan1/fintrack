@@ -45,7 +45,7 @@ export function Shell() {
             <CreditCard size={20} />
           </div>
           <span className="text-xl font-bold tracking-tight text-white">
-            SpendWise
+            Afin Track
           </span>
         </div>
 

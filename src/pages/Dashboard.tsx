@@ -131,7 +131,7 @@ export function Dashboard({ activeTab }: DashboardProps) {
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `spendwise-export-${format(new Date(), "yyyy-MM-dd")}.csv`,
+      `afintrack-export-${format(new Date(), "yyyy-MM-dd")}.csv`,
     );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
@@ -158,7 +158,7 @@ export function Dashboard({ activeTab }: DashboardProps) {
     };
 
     doc.setFontSize(18);
-    doc.text("SpendWise Transactions", 14, 22);
+    doc.text("Afin Track Transactions", 14, 22);
 
     doc.setFontSize(12);
     doc.text(
@@ -189,7 +189,7 @@ export function Dashboard({ activeTab }: DashboardProps) {
       headStyles: { fillColor: [16, 185, 129] },
     });
 
-    doc.save(`spendwise-export-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    doc.save(`afintrack-export-${format(new Date(), "yyyy-MM-dd")}.pdf`);
   };
 
   return (

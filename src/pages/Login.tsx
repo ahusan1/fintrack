@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { CreditCard, AlertTriangle, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function Login() {
   const { signInWithGoogle } = useAuth();
@@ -41,7 +42,7 @@ export function Login() {
             <CreditCard size={32} />
           </div>
           <div>
-            <h1 className="text-3xl font-black tracking-tight">SpendWise</h1>
+            <h1 className="text-3xl font-black tracking-tight">Afin Track</h1>
             <p className="text-slate-500 dark:text-slate-400 font-medium">
               Smart Financial Overview
             </p>
@@ -90,13 +91,20 @@ export function Login() {
           </p>
         </div>
 
-        <div className="text-center group">
-          <a
-            href="#"
+        <div className="text-center group flex items-center justify-center gap-4">
+          <Link
+            to="/terms"
             className="text-slate-400 text-[10px] uppercase tracking-widest font-bold hover:text-emerald-500 transition-colors"
           >
-            Terms & Privacy Architecture →
-          </a>
+            Terms of Service
+          </Link>
+          <span className="text-slate-300 dark:text-slate-700">•</span>
+          <Link
+            to="/privacy"
+            className="text-slate-400 text-[10px] uppercase tracking-widest font-bold hover:text-emerald-500 transition-colors"
+          >
+            Privacy Policy
+          </Link>
         </div>
       </div>
     </div>
