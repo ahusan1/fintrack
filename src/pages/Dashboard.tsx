@@ -49,10 +49,12 @@ export function Dashboard({ activeTab }: DashboardProps) {
   >(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [refreshTransactions, setRefreshTransactions] = useState<(() => void) | null>(null);
+
   useEffect(() => {
     if (user) {
       setErrorInfo(null);
-      const unsubscribe = subscribeToTransactions(
+      const sub = subscribeToTransactions(
         user.id,
         (data) => {
           setTransactions(data);
@@ -61,7 +63,8 @@ export function Dashboard({ activeTab }: DashboardProps) {
           setErrorInfo(err.message);
         },
       );
-      return unsubscribe;
+      setRefreshTransactions(() => sub.refresh);
+      return sub.unsubscribe;
     }
   }, [user]);
 
@@ -91,6 +94,7 @@ export function Dashboard({ activeTab }: DashboardProps) {
         await createTransaction(user.id, data);
       }
       setIsFormOpen(false);
+      refreshTransactions?.();
     } catch (error: any) {
       console.error(error);
       alert(`Error saving transaction: ${error.message || JSON.stringify(error)}`);
@@ -104,6 +108,7 @@ export function Dashboard({ activeTab }: DashboardProps) {
       return;
     try {
       await deleteTransaction(user.id, id);
+      refreshTransactions?.();
     } catch (error) {
       alert("Error deleting transaction.");
     }

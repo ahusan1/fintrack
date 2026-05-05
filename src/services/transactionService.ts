@@ -38,13 +38,16 @@ export function subscribeToTransactions(
         filter: `user_id=eq.${userId}`,
       },
       (payload) => {
-        fetchInitialData(); // Re-fetch on any change to keep sorting simple
+        fetchInitialData(); // Re-fetch on any change
       }
     )
     .subscribe();
 
-  return () => {
-    supabase.removeChannel(channel);
+  return {
+    unsubscribe: () => {
+      supabase.removeChannel(channel);
+    },
+    refresh: fetchInitialData,
   };
 }
 
