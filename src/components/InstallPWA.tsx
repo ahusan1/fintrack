@@ -4,7 +4,9 @@ import { Download, X } from "lucide-react";
 export function InstallPWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(() => {
+    return localStorage.getItem('pwaPromptDismissed') === 'true';
+  });
 
   useEffect(() => {
     // Check if app is already installed
@@ -44,6 +46,7 @@ export function InstallPWA() {
 
   const handleDismiss = () => {
     setIsDismissed(true);
+    localStorage.setItem('pwaPromptDismissed', 'true');
   };
 
   if (!isInstallable || isDismissed) return null;
