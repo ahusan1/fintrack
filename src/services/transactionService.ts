@@ -142,7 +142,16 @@ export function subscribeToTransactions(
       saveCache(userId, data as Transaction[]);
       notifyCache();
     } catch (err: any) {
-      if (onError) onError(err);
+      if (
+        err instanceof TypeError || 
+        err.message?.includes('Load failed') || 
+        err.message?.includes('Failed to fetch')
+      ) {
+        console.warn('Network error fetching transactions, relying on cache', err);
+        notifyCache();
+      } else {
+        if (onError) onError(err);
+      }
     }
   };
 
