@@ -193,7 +193,7 @@ export function Dashboard({ activeTab }: DashboardProps) {
   };
 
   return (
-    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-16 md:pb-0">
+    <div className="space-y-6 md:space-y-8 pb-16 md:pb-0">
       {errorInfo && (
         <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 text-red-800 dark:text-red-200 p-4 rounded-xl flex flex-col gap-2">
           <h3 className="font-bold">Database Access Error</h3>
