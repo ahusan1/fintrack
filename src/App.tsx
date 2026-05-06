@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { Shell } from "./components/layout/Shell";
+import { InstallPWA } from "./components/InstallPWA";
 import { Privacy } from "./pages/Privacy";
 import { Terms } from "./pages/Terms";
 
@@ -25,6 +26,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <InstallPWA />
       <Suspense
         fallback={
           <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">

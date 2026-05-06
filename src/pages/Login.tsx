@@ -38,8 +38,8 @@ export function Login() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-900 dark:text-slate-100">
       <div className="w-full max-w-sm space-y-10">
         <div className="text-center space-y-4">
-          <div className="inline-flex w-16 h-16 bg-emerald-500 rounded-2xl items-center justify-center text-white shadow-xl shadow-emerald-500/20">
-            <CreditCard size={32} />
+          <div className="inline-flex w-20 h-20 rounded-2xl overflow-hidden shadow-xl shadow-emerald-500/20 bg-white">
+            <img src="/icon.svg" alt="Afin Track" className="w-full h-full" />
           </div>
           <div>
             <h1 className="text-3xl font-black tracking-tight">Afin Track</h1>
