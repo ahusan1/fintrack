@@ -78,14 +78,11 @@ export function Login() {
                onError={() => {
                  setError("Google Login Failed. Please try again.");
                }}
-               useOneTap={!isIframe}
                theme="outline"
                size="large"
                shape="rectangular"
                width="320"
                text="continue_with"
-               auto_select={false}
-               {...{ use_fedcm_for_prompt: false }}
              />
           </div>
 
