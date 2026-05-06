@@ -166,7 +166,7 @@ export function Shell() {
       </div>
 
       {/* Bottom Navigation - Mobile Only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-50 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+      <nav className="md:hidden fixed bottom-6 left-6 right-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 z-50 pb-2 pt-2 px-6 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)]">
         <div className="flex items-center justify-between relative">
           <div className="flex w-2/5 justify-around">
             <Link
@@ -211,9 +211,9 @@ export function Shell() {
 
           <button
             onClick={triggerAdd}
-            className="absolute left-1/2 -top-8 -translate-x-1/2 w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-600/30 border-4 border-slate-50 dark:border-slate-900 z-[60] touch-manipulation select-none cursor-pointer [&>*]:pointer-events-none"
+            className="absolute left-1/2 -top-6 -translate-x-1/2 w-14 h-14 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-[0_8px_24px_rgba(16,185,129,0.4)] border-[3px] border-white dark:border-slate-900 z-[60] touch-manipulation select-none cursor-pointer [&>*]:pointer-events-none transition-transform active:scale-95"
           >
-            <Plus size={32} />
+            <Plus size={28} strokeWidth={2.5} />
           </button>
 
           <div className="flex w-2/5 justify-around">
