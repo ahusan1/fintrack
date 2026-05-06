@@ -102,12 +102,18 @@ export function Shell() {
           </button>
 
           <div className="flex items-center gap-3 px-4 py-2 border-t border-slate-800 pt-4 mt-4">
-            <div className="w-10 h-10 rounded-full bg-slate-700 flex-shrink-0 overflow-hidden ring-2 ring-slate-800">
-              <img
-                src={user?.user_metadata?.avatar_url || "https://via.placeholder.com/40"}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center relative flex-shrink-0 overflow-hidden ring-2 ring-slate-800">
+              <span className="text-white font-bold text-sm">
+                {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "U").charAt(0).toUpperCase()}
+              </span>
+              {user?.user_metadata?.avatar_url && (
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt="Profile"
+                  className="w-full h-full object-cover absolute inset-0 z-10"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate text-white">
@@ -143,17 +149,18 @@ export function Shell() {
               <Bell size={22} />
               <span className="absolute top-2.5 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
             </button>
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-200 shadow-sm shrink-0">
-              <img
-                src={
-                  user?.user_metadata?.avatar_url ||
-                  "https://ui-avatars.com/api/?name=" +
-                    encodeURIComponent(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "User") +
-                    "&background=10b981&color=fff"
-                }
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+            <div className="w-10 h-10 rounded-full relative flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 bg-emerald-500 shadow-sm shrink-0">
+              <span className="text-white font-bold text-sm">
+                {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "U").charAt(0).toUpperCase()}
+              </span>
+              {user?.user_metadata?.avatar_url && (
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt="Profile"
+                  className="w-full h-full object-cover absolute inset-0 z-10"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              )}
             </div>
           </div>
         </header>

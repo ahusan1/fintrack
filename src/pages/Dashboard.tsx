@@ -267,12 +267,18 @@ export function Dashboard({ activeTab }: DashboardProps) {
 
       {activeTab === "profile" && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 text-center">
-          <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 mx-auto mb-4 overflow-hidden ring-4 ring-slate-50 dark:ring-slate-950">
-            <img
-              src={user?.user_metadata?.avatar_url || "https://via.placeholder.com/96"}
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
+          <div className="w-24 h-24 rounded-full bg-indigo-500 relative flex items-center justify-center mx-auto mb-4 overflow-hidden ring-4 ring-slate-50 dark:ring-slate-950">
+            <span className="text-white font-bold text-3xl">
+              {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "U").charAt(0).toUpperCase()}
+            </span>
+            {user?.user_metadata?.avatar_url && (
+              <img
+                src={user.user_metadata.avatar_url}
+                alt="Profile"
+                className="w-full h-full object-cover absolute inset-0 z-10"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+            )}
           </div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
             {user?.user_metadata?.full_name || user?.user_metadata?.name || "User"}
