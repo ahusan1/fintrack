@@ -132,7 +132,7 @@ export function Shell() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Mobile Header */}
-        <header className="md:hidden flex items-center justify-between px-6 pt-[max(3.5rem,calc(env(safe-area-inset-top)+1rem))] pb-4 bg-slate-50 dark:bg-slate-950 top-0 z-30 sticky">
+        <header className="md:hidden flex items-center justify-between px-6 pt-[max(2rem,calc(env(safe-area-inset-top)+1rem))] pb-4 bg-slate-50 dark:bg-slate-950 top-0 z-30 sticky">
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white truncate max-w-[200px]">
               Hello, {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "User").split(" ")[0]}
