@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { AlertTriangle, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleOneTapLogin } from "@react-oauth/google";
 
 export function Login() {
-  const { signInWithIdToken } = useAuth();
+  const { signInWithGoogle, signInWithIdToken } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const isIframe = window.self !== window.top;
 
@@ -22,6 +22,31 @@ export function Login() {
       }
     }
   }, []);
+
+  useGoogleOneTapLogin({
+    onSuccess: async (credentialResponse) => {
+      try {
+        if (credentialResponse.credential) {
+          await signInWithIdToken(credentialResponse.credential);
+        }
+      } catch (err: any) {
+        setError(err.message || "Failed to log in with Google One Tap");
+      }
+    },
+    onError: () => {
+      console.log('Google One Tap Login Failed');
+    },
+    use_fedcm_for_prompt: true,
+  });
+
+  const handleGoogleClick = async () => {
+    try {
+      setError(null);
+      await signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message || "An error occurred during login.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-900 dark:text-slate-100">
@@ -48,7 +73,7 @@ export function Login() {
           {isIframe && (
             <div className="p-4 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 text-sm font-medium rounded-xl border border-amber-100 dark:border-amber-900/50 text-center flex flex-col items-center gap-2">
               <AlertTriangle size={20} />
-              <p>Google Login might fail inside the preview iframe or popups might be blocked.</p>
+              <p>Google Login works best when opened in a full window (One Tap requires it).</p>
               <a
                 href={window.location.href}
                 target="_blank"
@@ -61,27 +86,18 @@ export function Login() {
             </div>
           )}
 
-          <div className="flex justify-center w-full">
-            <GoogleLogin
-              onSuccess={async (credentialResponse) => {
-                try {
-                  if (credentialResponse.credential) {
-                    await signInWithIdToken(credentialResponse.credential);
-                  }
-                } catch (err: any) {
-                  setError(err.message || "Failed to log in with Google");
-                }
-              }}
-              onError={() => {
-                setError("Google Login Failed");
-              }}
-              useOneTap={!isIframe}
-              auto_select={false}
-              theme="outline"
-              size="large"
-              shape="rectangular"
-              width="300"
-            />
+          <div className="space-y-3">
+            <button
+              onClick={handleGoogleClick}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-2xl font-bold transition-all active:scale-[0.98] shadow-sm text-sm"
+            >
+              <img
+                src="https://www.google.com/favicon.ico"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              Continue with Google
+            </button>
           </div>
 
           <p className="text-center text-[10px] uppercase font-bold tracking-wider text-slate-400 leading-relaxed px-4 pt-4">
