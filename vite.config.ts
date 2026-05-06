@@ -82,6 +82,31 @@ export default defineConfig(({mode}) => {
                   statuses: [0, 200]
                 }
               }
+            },
+            {
+              urlPattern: /\.(?:png|gif|jpg|jpeg|webp|svg)$/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'images-cache',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 30
+                },
+              }
+            },
+            {
+              urlPattern: /^https:\/\/(lh3\.googleusercontent\.com|avatars\.githubusercontent\.com|via\.placeholder\.com|ui-avatars\.com)\/.*/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'external-avatars-cache',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 30
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
             }
           ]
         }
