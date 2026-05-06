@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   subscribeToTransactions,
@@ -14,26 +14,10 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 
-const TransactionList = lazy(() =>
-  import("../components/transactions/TransactionList").then((m) => ({
-    default: m.TransactionList,
-  })),
-);
-const TransactionForm = lazy(() =>
-  import("../components/transactions/TransactionForm").then((m) => ({
-    default: m.TransactionForm,
-  })),
-);
-const Charts = lazy(() =>
-  import("../components/charts/MonthlyChart").then((m) => ({
-    default: m.MonthlyChart,
-  })),
-);
-const SpendingOverview = lazy(() =>
-  import("../components/dashboard/SpendingOverview").then((m) => ({
-    default: m.SpendingOverview,
-  })),
-);
+import { TransactionList } from "../components/transactions/TransactionList";
+import { TransactionForm } from "../components/transactions/TransactionForm";
+import { MonthlyChart as Charts } from "../components/charts/MonthlyChart";
+import { SpendingOverview } from "../components/dashboard/SpendingOverview";
 
 interface DashboardProps {
   activeTab: string;
@@ -242,13 +226,7 @@ export function Dashboard({ activeTab }: DashboardProps) {
         </div>
       </div>
 
-      <Suspense
-        fallback={
-          <div className="h-48 flex items-center justify-center text-slate-500 text-sm">
-            Loading component...
-          </div>
-        }
-      >
+      <>
         {activeTab === "dashboard" && (
           <>
             <StatCards transactions={transactions} onExportPDF={exportToPDF} />
@@ -285,7 +263,7 @@ export function Dashboard({ activeTab }: DashboardProps) {
             isLoading={isSubmitting}
           />
         )}
-      </Suspense>
+      </>
 
       {activeTab === "profile" && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 text-center">
