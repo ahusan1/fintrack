@@ -64,17 +64,17 @@ export function SpendingOverview({ transactions }: SpendingOverviewProps) {
         </span>
       </div>
 
-      <div className="flex flex-row items-center justify-between gap-4">
+      <div className="flex flex-row items-center justify-between gap-3 sm:gap-4">
         {/* Donut Chart */}
-        <div className="h-[140px] w-[140px] relative">
+        <div className="h-[120px] w-[120px] sm:h-[140px] sm:w-[140px] relative flex-shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={categoryData}
                 cx="50%"
                 cy="50%"
-                innerRadius={45}
-                outerRadius={65}
+                innerRadius="65%"
+                outerRadius="90%"
                 paddingAngle={4}
                 dataKey="value"
                 stroke="none"

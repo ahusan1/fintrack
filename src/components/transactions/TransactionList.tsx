@@ -22,14 +22,16 @@ interface TransactionListProps {
   onDelete: (id: string) => void;
 }
 
-const SwipeableTransactionItem = ({ 
+interface SwipeableProps {
+  transaction: Transaction;
+  onEdit: (t: Transaction) => void;
+  onDelete: (id: string) => void;
+}
+
+const SwipeableTransactionItem: React.FC<SwipeableProps> = ({ 
   transaction, 
   onEdit, 
   onDelete 
-}: { 
-  transaction: Transaction, 
-  onEdit: (t: Transaction) => void, 
-  onDelete: (id: string) => void 
 }) => {
   const x = useMotionValue(0);
 
