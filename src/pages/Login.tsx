@@ -2,16 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { AlertTriangle, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useGoogleOneTapLogin, GoogleLogin } from "@react-oauth/google";
-
-function OneTapLogin({ onSuccess, onError }: { onSuccess: (res: any) => void, onError: () => void }) {
-  useGoogleOneTapLogin({
-    onSuccess,
-    onError,
-    use_fedcm_for_prompt: true,
-  });
-  return null;
-}
+import { GoogleLogin } from "@react-oauth/google";
 
 export function Login() {
   const { signInWithIdToken } = useAuth();
@@ -45,12 +36,6 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-900 dark:text-slate-100">
-      {!isIframe && (
-        <OneTapLogin 
-          onSuccess={handleSuccess} 
-          onError={() => setError("Google One Tap Login Failed")} 
-        />
-      )}
       <div className="w-full max-w-sm space-y-10">
         <div className="text-center space-y-4">
           <div className="inline-flex w-20 h-20 rounded-2xl overflow-hidden shadow-xl shadow-emerald-500/20 bg-white">
@@ -93,12 +78,14 @@ export function Login() {
                onError={() => {
                  setError("Google Login Failed. Please try again.");
                }}
-               useOneTap={false}
+               useOneTap={!isIframe}
                theme="outline"
                size="large"
                shape="rectangular"
                width="320"
                text="continue_with"
+               auto_select={false}
+               {...{ use_fedcm_for_prompt: false }}
              />
           </div>
 
