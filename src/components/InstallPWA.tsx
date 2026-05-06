@@ -44,17 +44,18 @@ export function InstallPWA() {
   if (!isInstallable) return null;
 
   return (
-    <div className="bg-emerald-600 px-4 py-3 text-white flex justify-between items-center sm:rounded-lg sm:mx-4 sm:mt-4 shadow-md z-50">
-      <div className="flex flex-col">
-        <span className="font-semibold">Install Afin Track</span>
-        <span className="text-emerald-100 text-sm">Add to your home screen for offline use</span>
+    <div className="bg-emerald-600 px-4 py-3 text-white flex justify-between items-center sm:rounded-lg sm:mx-4 sm:mt-4 shadow-md z-50 gap-4">
+      <div className="flex flex-col flex-1 min-w-0">
+        <span className="font-semibold truncate">Install Afin Track</span>
+        <span className="text-emerald-100 text-[11px] sm:text-xs leading-snug">Add to your home screen for offline use</span>
       </div>
       <button 
         onClick={handleInstallClick}
-        className="flex items-center gap-2 bg-white text-emerald-600 px-4 py-2 rounded-full font-medium hover:bg-emerald-50 transition-colors shadow-sm"
+        className="flex-shrink-0 flex items-center justify-center gap-1.5 bg-white text-emerald-600 px-3 py-2 sm:px-4 sm:py-2.5 rounded-full font-medium hover:bg-emerald-50 transition-colors shadow-sm text-sm whitespace-nowrap"
       >
-        <Download size={18} />
-        Install App
+        <Download size={16} />
+        <span className="hidden sm:inline">Install App</span>
+        <span className="sm:hidden">Install</span>
       </button>
     </div>
   );
