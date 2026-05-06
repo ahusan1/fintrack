@@ -1,4 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="100" fill="#0f172a" />
-  <path d="M128 256 l85 85 171 -171" stroke="#10b981" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <!-- Left Blue Arc Gradient -->
+    <linearGradient id="blueArcGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0062ff"/>
+      <stop offset="100%" stop-color="#003580"/>
+    </linearGradient>
+
+    <!-- Right Green Arc Gradient -->
+    <linearGradient id="greenArcGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#007a55"/>
+      <stop offset="100%" stop-color="#32b854"/>
+    </linearGradient>
+
+    <!-- Center 'A' Polygon Gradient -->
+    <linearGradient id="blueAGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1870e6"/>
+      <stop offset="100%" stop-color="#072d73"/>
+    </linearGradient>
+
+    <!-- Bar Chart Gradient -->
+    <linearGradient id="greenBarGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#149e48"/>
+      <stop offset="100%" stop-color="#32b854"/>
+    </linearGradient>
+
+    <!-- Arrow Gradient -->
+    <linearGradient id="greenArrowGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#149e48"/>
+      <stop offset="100%" stop-color="#42e66b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#ffffff" />
+
+  <!-- The "A" Logo Mark -->
+  <path d="M 390,180 L 460,180 L 530,430 L 470,430 L 440,320 L 360,320 L 320,430 L 250,430 Z M 405,230 L 435,290 L 370,290 Z" fill="url(#blueAGrad)" fill-rule="evenodd" />
+
+  <!-- Masking Block to erase the bottom-right leg of the 'A' -->
+  <rect x="440" y="310" width="100" height="130" fill="#ffffff" />
+
+  <!-- Left Blue Swoosh (Crescent Path) -->
+  <path d="M 435,135 A 180,180 0 0,0 365,505 A 200,200 0 0,1 435,135 Z" fill="url(#blueArcGrad)" />
+
+  <!-- Right Green Swoosh (Crescent Path) -->
+  <path d="M 420,510 A 180,180 0 0,0 560,260 A 200,200 0 0,1 420,510 Z" fill="url(#greenArcGrad)" />
+
+  <!-- Bar Chart (Nested under the arrow) -->
+  <rect x="370" y="400" width="22" height="30" fill="url(#greenBarGrad)" />
+  <rect x="405" y="370" width="22" height="60" fill="url(#greenBarGrad)" />
+  <rect x="440" y="330" width="22" height="100" fill="url(#greenBarGrad)" />
+
+  <!-- White Knockout for Arrow (Creates the clear gap through the 'A' and Bars) -->
+  <path d="M 280,450 Q 430,410 525,255 L 510,240 L 570,210 L 545,280 L 530,265 Q 445,435 290,465 Z" fill="#ffffff" stroke="#ffffff" stroke-width="14" stroke-linejoin="round" />
+
+  <!-- Main Green Arrow -->
+  <path d="M 280,450 Q 430,410 525,255 L 510,240 L 570,210 L 545,280 L 530,265 Q 445,435 290,465 Z" fill="url(#greenArrowGrad)" />
+
+  <!-- Main Brand Text -->
+  <text x="400" y="610" font-family="Montserrat, 'Segoe UI', Arial, sans-serif" font-weight="800" font-size="80" text-anchor="middle" letter-spacing="5">
+    <tspan fill="#0a337a">AFIN</tspan>
+    <tspan fill="#32b854"> TRACK</tspan>
+  </text>
+
+  <!-- Subtext Slogan -->
+  <text x="400" y="660" font-family="'Segoe UI', Arial, sans-serif" font-weight="600" font-size="16" text-anchor="middle" fill="#333333" letter-spacing="2.5">
+    TRACK EVERY EXPENSE. OWN YOUR FINANCE.
+  </text>
+
+  <!-- Slogan Divider Lines -->
+  <line x1="120" y1="654" x2="160" y2="654" stroke="#0062ff" stroke-width="1.5" />
+  <line x1="640" y1="654" x2="680" y2="654" stroke="#32b854" stroke-width="1.5" />
 </svg>
