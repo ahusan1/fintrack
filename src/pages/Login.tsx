@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { AlertTriangle, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
 
 export function Login() {
-  const { signInWithIdToken } = useAuth();
+  const { signInWithGoogle, signInWithIdToken } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const isIframe = window.self !== window.top;
 
@@ -23,14 +22,12 @@ export function Login() {
     }
   }, []);
 
-  const handleSuccess = async (credentialResponse: any) => {
+  const handleGoogleClick = async () => {
     try {
       setError(null);
-      if (credentialResponse.credential) {
-        await signInWithIdToken(credentialResponse.credential);
-      }
+      await signInWithGoogle();
     } catch (err: any) {
-      setError(err.message || "Failed to log in with Google");
+      setError(err.message || "An error occurred during login.");
     }
   };
 
@@ -72,21 +69,18 @@ export function Login() {
             </div>
           )}
 
-          <div className="flex justify-center w-full">
-            <GoogleLogin
-               onSuccess={handleSuccess}
-               onError={() => {
-                 setError("Google Login Failed. Please try again.");
-               }}
-               useOneTap={!isIframe}
-               theme="outline"
-               size="large"
-               shape="rectangular"
-               width="320"
-               text="continue_with"
-               auto_select={false}
-               {...{ use_fedcm_for_prompt: false }}
-             />
+          <div className="space-y-3">
+            <button
+              onClick={handleGoogleClick}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-2xl font-bold transition-all active:scale-[0.98] shadow-sm text-sm"
+            >
+              <img
+                src="https://www.google.com/favicon.ico"
+                alt="Google"
+                className="w-5 h-5"
+              />
+              Continue with Google
+            </button>
           </div>
 
           <p className="text-center text-[10px] uppercase font-bold tracking-wider text-slate-400 leading-relaxed px-4 pt-4">
