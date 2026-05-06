@@ -39,12 +39,12 @@ export function SpendingOverview({ transactions }: SpendingOverviewProps) {
   if (categoryData.length === 0) return null;
 
   return (
-    <div className="bg-white dark:bg-slate-900 px-6 py-7 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm mt-6">
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="font-bold tracking-tight text-slate-800 dark:text-slate-100 text-[1.1rem]">
+    <div className="bg-white dark:bg-slate-900 px-5 py-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm mt-6">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">
           Spending Overview
         </h3>
-        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider bg-slate-50 dark:bg-slate-800/80 px-3.5 py-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50 flex items-center gap-1.5 cursor-pointer shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <span className="text-xs font-semibold text-slate-500 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer">
           This Month
           <svg
             width="10"
@@ -52,7 +52,6 @@ export function SpendingOverview({ transactions }: SpendingOverviewProps) {
             viewBox="0 0 10 6"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="opacity-50"
           >
             <path
               d="M1 1L5 5L9 1"
@@ -65,9 +64,9 @@ export function SpendingOverview({ transactions }: SpendingOverviewProps) {
         </span>
       </div>
 
-      <div className="flex flex-row items-center justify-between gap-6 sm:gap-8">
+      <div className="flex flex-row items-center justify-between gap-3 sm:gap-4">
         {/* Donut Chart */}
-        <div className="h-[140px] w-[140px] sm:h-[160px] sm:w-[160px] relative flex-shrink-0">
+        <div className="h-[120px] w-[120px] sm:h-[140px] sm:w-[140px] relative flex-shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

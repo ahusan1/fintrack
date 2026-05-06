@@ -237,15 +237,22 @@ export function Dashboard({ activeTab }: DashboardProps) {
         {activeTab === "analytics" && <Charts transactions={transactions} />}
 
         {(activeTab === "transactions" || activeTab === "dashboard") && (
-          <TransactionList
-            transactions={
-              activeTab === "dashboard"
-                ? transactions.slice(0, 5)
-                : transactions
-            }
-            onEdit={handleEditTransaction}
-            onDelete={handleDelete}
-          />
+          <>
+            {activeTab === "dashboard" && (
+              <h2 className="text-xl font-bold mb-4 mt-8 px-1">
+                Recent Transactions
+              </h2>
+            )}
+            <TransactionList
+              transactions={
+                activeTab === "dashboard"
+                  ? transactions.slice(0, 5)
+                  : transactions
+              }
+              onEdit={handleEditTransaction}
+              onDelete={handleDelete}
+            />
+          </>
         )}
 
         {isFormOpen && (

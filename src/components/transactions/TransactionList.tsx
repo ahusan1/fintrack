@@ -175,10 +175,10 @@ export function TransactionList({
   });
 
   return (
-    <div className="bg-white dark:bg-slate-900 md:border border-slate-100 dark:border-slate-800 flex flex-col rounded-[2rem] shadow-sm mt-6 mb-24 md:mb-0">
-      <div className="md:px-8 px-6 py-6 border-b border-slate-100 dark:border-slate-800">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <h2 className="text-[1.1rem] font-bold tracking-tight text-slate-800 dark:text-slate-100">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden shadow-sm">
+      <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h2 className="text-xl font-bold tracking-tight">
             Recent Transactions
           </h2>
 

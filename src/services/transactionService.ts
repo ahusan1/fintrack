@@ -142,15 +142,15 @@ export function subscribeToTransactions(
       saveCache(userId, data as Transaction[]);
       notifyCache();
     } catch (err: any) {
-      console.warn('Network error fetching transactions, relying on cache', err);
-      // Always fallback to cache on any error (like offline)
-      notifyCache();
       if (
-        !err.message?.includes('Failed to fetch') && 
-        !err.message?.includes('Load failed') &&
-        !err.message?.includes('NetworkError')
+        err instanceof TypeError || 
+        err.message?.includes('Load failed') || 
+        err.message?.includes('Failed to fetch')
       ) {
-         if (onError) onError(err);
+        console.warn('Network error fetching transactions, relying on cache', err);
+        notifyCache();
+      } else {
+        if (onError) onError(err);
       }
     }
   };
