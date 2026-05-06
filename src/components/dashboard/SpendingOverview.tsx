@@ -39,14 +39,12 @@ export function SpendingOverview({ transactions }: SpendingOverviewProps) {
   if (categoryData.length === 0) return null;
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900/50 px-6 py-6 rounded-[2rem] border border-slate-200/60 dark:border-slate-800 shadow-sm mt-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-slate-200/50 dark:bg-slate-800/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-      
-      <div className="flex items-center justify-between mb-6 relative z-10">
-        <h3 className="font-semibold tracking-tight text-slate-800 dark:text-slate-100 text-lg">
+    <div className="bg-white dark:bg-slate-900 px-6 py-7 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm mt-6">
+      <div className="flex items-center justify-between mb-8">
+        <h3 className="font-bold tracking-tight text-slate-800 dark:text-slate-100 text-[1.1rem]">
           Spending Overview
         </h3>
-        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider bg-white dark:bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-200/60 dark:border-slate-700/50 flex items-center gap-1 cursor-pointer shadow-sm">
+        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider bg-slate-50 dark:bg-slate-800/80 px-3.5 py-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50 flex items-center gap-1.5 cursor-pointer shadow-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
           This Month
           <svg
             width="10"
@@ -54,7 +52,7 @@ export function SpendingOverview({ transactions }: SpendingOverviewProps) {
             viewBox="0 0 10 6"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="opacity-50 ml-1"
+            className="opacity-50"
           >
             <path
               d="M1 1L5 5L9 1"
@@ -67,7 +65,7 @@ export function SpendingOverview({ transactions }: SpendingOverviewProps) {
         </span>
       </div>
 
-      <div className="flex flex-row items-center justify-between gap-3 sm:gap-4 relative z-10">
+      <div className="flex flex-row items-center justify-between gap-6 sm:gap-8">
         {/* Donut Chart */}
         <div className="h-[140px] w-[140px] sm:h-[160px] sm:w-[160px] relative flex-shrink-0">
           <ResponsiveContainer width="100%" height="100%">

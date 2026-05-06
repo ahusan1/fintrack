@@ -19,10 +19,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Safety timeout to prevent app hanging on slow networks
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
+      clearTimeout(timeoutId);
+    }).catch((err) => {
+      console.warn("Auth check failed:", err);
+      setLoading(false);
+      clearTimeout(timeoutId);
     });
 
     // Listen for changes

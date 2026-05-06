@@ -132,24 +132,27 @@ export function Shell() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Mobile Header */}
-        <header className="md:hidden flex items-center justify-between px-6 pt-10 pb-4 bg-slate-50 dark:bg-slate-950 top-0 z-30 sticky">
+        <header className="md:hidden flex items-center justify-between px-6 pt-10 pb-4 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
           <div className="flex flex-col">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},
+            </span>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white truncate max-w-[200px]">
-              Hello, {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "User").split(" ")[0]}
+              {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "User"}
             </h1>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <button className="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors relative">
-              <Bell size={22} />
-              <span className="absolute top-2.5 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
+            <button className="w-10 h-10 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors relative">
+              <Bell size={20} />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-slate-50 dark:ring-slate-950"></span>
             </button>
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-200 shadow-sm shrink-0">
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-slate-800 bg-slate-200 shadow-sm shrink-0">
               <img
                 src={
                   user?.user_metadata?.avatar_url ||
                   "https://ui-avatars.com/api/?name=" +
                     encodeURIComponent(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "User") +
-                    "&background=10b981&color=fff"
+                    "&background=0f172a&color=fff"
                 }
                 alt="Profile"
                 className="w-full h-full object-cover"
