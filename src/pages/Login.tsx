@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { CreditCard, AlertTriangle, ExternalLink } from "lucide-react";
+import { AlertTriangle, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useGoogleOneTapLogin, GoogleLogin } from "@react-oauth/google";
+
+function OneTap() {
+  const { signInWithIdToken } = useAuth();
+  
+  useGoogleOneTapLogin({
+    onSuccess: async (credentialResponse) => {
+      try {
+        if (credentialResponse.credential) {
+          await signInWithIdToken(credentialResponse.credential);
+        }
+      } catch (err: any) {
+        console.error("Failed to log in with Google One Tap:", err);
+      }
+    },
+    onError: () => {
+      console.log('Google One Tap Login Failed');
+    },
+    use_fedcm_for_prompt: false,
+    auto_select: false,
+  });
+
+  return null;
+}
 
 export function Login() {
   const { signInWithGoogle } = useAuth();
@@ -36,6 +60,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-900 dark:text-slate-100">
+      {!isIframe && <OneTap />}
       <div className="w-full max-w-sm space-y-10">
         <div className="text-center space-y-4">
           <div className="inline-flex w-20 h-20 rounded-2xl overflow-hidden shadow-xl shadow-emerald-500/20 bg-white">

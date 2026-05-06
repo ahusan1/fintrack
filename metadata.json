@@ -1,6 +1,8 @@
 {
   "name": "Afin Track",
   "description": "A modern, responsive fintech dashboard for tracking income and expenses with real-time Firebase sync and detailed analytics.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": [
+    "identity-credentials-get"
+  ],
   "majorCapabilities": []
 }
