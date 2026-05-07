@@ -56,6 +56,45 @@ export default defineConfig(({mode}) => {
           globPatterns: ['**/*.{js,css,html,png,svg,json,woff,woff2}'],
           runtimeCaching: [
             {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/.*/i,
+              handler: 'NetworkOnly',
+              method: 'POST',
+              options: {
+                backgroundSync: {
+                  name: 'supabase-mutations-queue',
+                  options: {
+                    maxRetentionTime: 24 * 60, // 24 hours
+                  },
+                },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/.*/i,
+              handler: 'NetworkOnly',
+              method: 'PATCH',
+              options: {
+                backgroundSync: {
+                  name: 'supabase-mutations-queue',
+                  options: {
+                    maxRetentionTime: 24 * 60, // 24 hours
+                  },
+                },
+              },
+            },
+            {
+              urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/.*/i,
+              handler: 'NetworkOnly',
+              method: 'DELETE',
+              options: {
+                backgroundSync: {
+                  name: 'supabase-mutations-queue',
+                  options: {
+                    maxRetentionTime: 24 * 60, // 24 hours
+                  },
+                },
+              },
+            },
+            {
               urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
               handler: 'CacheFirst',
               options: {

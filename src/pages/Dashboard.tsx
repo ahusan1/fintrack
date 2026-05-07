@@ -285,7 +285,11 @@ export function Dashboard({ activeTab }: DashboardProps) {
           </h2>
           <p className="text-slate-500 text-sm mb-6">{user?.email}</p>
           <button
-            onClick={logout}
+            onClick={() => {
+              if (window.confirm("Are you sure you want to sign out?")) {
+                logout();
+              }
+            }}
             className="px-6 py-2 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 font-bold rounded-xl text-sm"
           >
             Sign Out

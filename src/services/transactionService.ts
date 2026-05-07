@@ -47,31 +47,40 @@ export async function syncOfflineMutations(userId: string) {
     if (!queue.length) return;
 
     for (const m of queue) {
-      if (m.type === "CREATE") {
-        const { id, ...rest } = m.data;
-        const res = await supabase
-          .from("transactions")
-          .upsert([{ ...rest, id: m.id, user_id: userId }]);
-        if (res.error) console.error("Create sync err", res.error);
-      } else if (m.type === "UPDATE") {
-        const res = await supabase
-          .from("transactions")
-          .update({ ...m.data, updatedAt: Date.now() })
-          .eq("id", m.id)
-          .eq("user_id", userId);
-        if (res.error) console.error("Update sync err", res.error);
-      } else if (m.type === "DELETE") {
-        const res = await supabase
-          .from("transactions")
-          .delete()
-          .eq("id", m.id)
-          .eq("user_id", userId);
-        if (res.error) console.error("Delete sync err", res.error);
+      let success = false;
+      try {
+        if (m.type === "CREATE") {
+          const { id, ...rest } = m.data;
+          const res = await supabase
+            .from("transactions")
+            .upsert([{ ...rest, id: m.id, user_id: userId }]);
+          success = !res.error;
+          if (res.error) console.error("Create sync err", res.error);
+        } else if (m.type === "UPDATE") {
+          const res = await supabase
+            .from("transactions")
+            .update({ ...m.data, updatedAt: Date.now() })
+            .eq("id", m.id)
+            .eq("user_id", userId);
+          success = !res.error;
+          if (res.error) console.error("Update sync err", res.error);
+        } else if (m.type === "DELETE") {
+          const res = await supabase
+            .from("transactions")
+            .delete()
+            .eq("id", m.id)
+            .eq("user_id", userId);
+          success = !res.error;
+          if (res.error) console.error("Delete sync err", res.error);
+        }
+      } catch (err) {
+        console.error("Mutation failed completely", err);
+      }
+      
+      if (success) {
+        removeFromQueue(userId, m.id);
       }
     }
-
-    const currentQueue = getQueue(userId);
-    saveQueue(userId, currentQueue.slice(queue.length));
   } catch (err) {
     console.error("Sync failed", err);
   } finally {
@@ -189,6 +198,14 @@ function generateUUID() {
   });
 }
 
+function removeFromQueue(userId: string, mutationId: string) {
+  const queue = getQueue(userId);
+  const updatedQueue = queue.filter(m => m.id !== mutationId);
+  if (queue.length !== updatedQueue.length) {
+    saveQueue(userId, updatedQueue);
+  }
+}
+
 export async function createTransaction(
   userId: string,
   data: Omit<Transaction, "id" | "createdAt" | "updatedAt">,
@@ -202,8 +219,16 @@ export async function createTransaction(
 
   refreshCallback?.(); // Update UI optimistically
 
-  if (navigator.onLine) {
-    syncOfflineMutations(userId).then(() => refreshCallback?.());
+  try {
+    const res = await supabase
+      .from("transactions")
+      .upsert([{ ...txData, id: customId, user_id: userId }]);
+      
+    if (!res.error) {
+      removeFromQueue(userId, customId);
+    }
+  } catch (err) {
+    console.log("Offline mode, request queued by Workbox.");
   }
 
   return customId;
@@ -220,8 +245,18 @@ export async function updateTransaction(
 
   refreshCallback?.(); // Update UI optimistically
 
-  if (navigator.onLine) {
-    syncOfflineMutations(userId).then(() => refreshCallback?.());
+  try {
+    const res = await supabase
+      .from("transactions")
+      .update({ ...data, updatedAt: Date.now() })
+      .eq("id", transactionId)
+      .eq("user_id", userId);
+      
+    if (!res.error) {
+      removeFromQueue(userId, transactionId);
+    }
+  } catch (err) {
+    console.log("Offline mode, request queued by Workbox.");
   }
 }
 
@@ -232,7 +267,17 @@ export async function deleteTransaction(userId: string, transactionId: string) {
 
   refreshCallback?.(); // Update UI optimistically
 
-  if (navigator.onLine) {
-    syncOfflineMutations(userId).then(() => refreshCallback?.());
+  try {
+    const res = await supabase
+      .from("transactions")
+      .delete()
+      .eq("id", transactionId)
+      .eq("user_id", userId);
+      
+    if (!res.error) {
+      removeFromQueue(userId, transactionId);
+    }
+  } catch (err) {
+    console.log("Offline mode, request queued by Workbox.");
   }
 }
