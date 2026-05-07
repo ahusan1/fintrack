@@ -8,6 +8,12 @@ import { Terms } from "./pages/Terms";
 
 import { Dashboard } from "./pages/Dashboard";
 import { Login } from "./pages/Login";
+import { AdminShell } from "./components/layout/AdminShell";
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminUsers } from "./pages/admin/AdminUsers";
+import { AdminTransactions } from "./pages/admin/AdminTransactions";
+import { AdminSettings } from "./pages/admin/AdminSettings";
+import { AdminReports } from "./pages/admin/AdminReports";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -29,26 +35,35 @@ export default function App() {
         {!user ? (
           <Route path="*" element={<Login />} />
         ) : (
-          <Route path="/" element={<Shell />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route
-              path="dashboard"
-              element={<Dashboard activeTab="dashboard" />}
-            />
-            <Route
-              path="transactions"
-              element={<Dashboard activeTab="transactions" />}
-            />
-            <Route
-              path="analytics"
-              element={<Dashboard activeTab="analytics" />}
-            />
-            <Route
-              path="profile"
-              element={<Dashboard activeTab="profile" />}
-            />
+          <>
+            <Route path="/" element={<Shell />}>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route
+                path="dashboard"
+                element={<Dashboard activeTab="dashboard" />}
+              />
+              <Route
+                path="transactions"
+                element={<Dashboard activeTab="transactions" />}
+              />
+              <Route
+                path="analytics"
+                element={<Dashboard activeTab="analytics" />}
+              />
+              <Route
+                path="profile"
+                element={<Dashboard activeTab="profile" />}
+              />
+            </Route>
+            <Route path="/admin" element={<AdminShell />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="transactions" element={<AdminTransactions />} />
+              <Route path="reports" element={<AdminReports />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Route>
+          </>
         )}
       </Routes>
     </BrowserRouter>

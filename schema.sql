@@ -4,24 +4,36 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   email TEXT,
   full_name TEXT,
   avatar_url TEXT,
+  role TEXT DEFAULT 'user',
   "createdAt" BIGINT DEFAULT (extract(epoch from now()) * 1000)::bigint
 );
+
+-- Ensure role column exists if the table was previously created without it
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user';
 
 -- Turn on Row Level Security for profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for profiles
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.profiles;
 CREATE POLICY "Public profiles are viewable by everyone."
   ON public.profiles FOR SELECT
   USING ( true );
 
+DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
 CREATE POLICY "Users can insert their own profile."
   ON public.profiles FOR INSERT
   WITH CHECK ( auth.uid() = id );
 
+DROP POLICY IF EXISTS "Users can update own profile." ON public.profiles;
 CREATE POLICY "Users can update own profile."
   ON public.profiles FOR UPDATE
-  USING ( auth.uid() = id );
+  USING ( auth.uid() = id OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') );
+
+DROP POLICY IF EXISTS "Users can delete own profile." ON public.profiles;
+CREATE POLICY "Users can delete own profile."
+  ON public.profiles FOR DELETE
+  USING ( auth.uid() = id OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') );
 
 -- Create a trigger to automatically create a profile when a new user signs up in Supabase Auth
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -63,18 +75,22 @@ CREATE TABLE IF NOT EXISTS public.transactions (
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "Users can view their own transactions" ON public.transactions;
 CREATE POLICY "Users can view their own transactions"
 ON public.transactions FOR SELECT
-USING (auth.uid() = user_id);
+USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
+DROP POLICY IF EXISTS "Users can insert their own transactions" ON public.transactions;
 CREATE POLICY "Users can insert their own transactions"
 ON public.transactions FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own transactions" ON public.transactions;
 CREATE POLICY "Users can update their own transactions"
 ON public.transactions FOR UPDATE
-USING (auth.uid() = user_id);
+USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
+DROP POLICY IF EXISTS "Users can delete their own transactions" ON public.transactions;
 CREATE POLICY "Users can delete their own transactions"
 ON public.transactions FOR DELETE
-USING (auth.uid() = user_id);
+USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));

@@ -14,6 +14,7 @@ import {
   User as UserIcon,
   LogOut,
   ChevronDown,
+  Shield,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
@@ -75,6 +76,12 @@ export function Shell() {
               id: "profile",
               path: "/profile",
             },
+            ...(user?.email === "ahhacker37@gmail.com" ? [{
+              name: "Admin",
+              icon: Shield,
+              id: "admin",
+              path: "/admin",
+            }] : []),
           ].map((item) => (
             <Link
               key={item.id}
