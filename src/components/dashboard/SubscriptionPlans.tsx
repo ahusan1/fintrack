@@ -61,7 +61,12 @@ export function SubscriptionPlans() {
         body: JSON.stringify({ receipt: `rcptid_${user.id}` }),
       });
 
-      const orderData = await orderRes.json();
+      let orderData;
+      try {
+        orderData = await orderRes.json();
+      } catch (err) {
+        throw new Error("Server returned an invalid response. Please verify whether Razorpay keys are properly configured in Admin Settings.");
+      }
 
       if (!orderRes.ok) {
         throw new Error(orderData.error || orderData.message || "Failed to create order");
@@ -83,7 +88,12 @@ export function SubscriptionPlans() {
               body: JSON.stringify(response),
             });
 
-            const verifyData = await verifyRes.json();
+            let verifyData;
+            try {
+              verifyData = await verifyRes.json();
+            } catch (err) {
+              throw new Error("Payment verified by gateway, but server response is invalid. Please contact support.");
+            }
 
             if (verifyData.success) {
               // Update DB

@@ -40,11 +40,14 @@ const fetchRazorpayKeys = async () => {
     }
     
     // Fallback to env variables if unset in DB
+    // Disabling for testing
+    /*
     if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
       cachedKeyId = process.env.RAZORPAY_KEY_ID;
       cachedKeySecret = process.env.RAZORPAY_KEY_SECRET;
       return true;
     }
+    */
   } catch (err) {
     console.error("Error fetching razorpay keys", err);
   }
@@ -87,6 +90,11 @@ async function startServer() {
     res.json({ success });
   });
 
+  // Error route test
+  app.get("/api/test-500", (req, res) => {
+    res.status(500).json({ error: "Test 500 error" });
+  });
+
   // Get Public Config
   app.get("/api/config", async (req, res) => {
     try {
@@ -104,7 +112,12 @@ async function startServer() {
   // Create Razorpay Order
   app.post("/api/razorpay/create-order", async (req, res) => {
     try {
-      const { receipt = "receipt#1" } = req.body;
+      let { receipt = "receipt#1" } = req.body;
+      
+      // Ensure receipt is max 40 chars as per Razorpay requirements
+      if (receipt && receipt.length > 40) {
+        receipt = receipt.substring(0, 40);
+      }
       
       const rzp = await getRazorpay();
       
@@ -126,8 +139,8 @@ async function startServer() {
       const order = await rzp.orders.create(options);
       res.json({ ...order, key_id: cachedKeyId }); // Sending key_id to client
     } catch (error: any) {
-      console.error("Razorpay order error:", error);
-      res.status(500).json({ error: error.message || "Failed to create order" });
+      console.error("Razorpay order error:", error?.statusCode, error?.error?.description || error?.message || error);
+      res.status(500).json({ error: error?.error?.description || error?.message || "Failed to create order" });
     }
   });
 
