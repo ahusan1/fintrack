@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { Search, Filter, Receipt } from "lucide-react";
+import { Search, Filter, Receipt, Trash2 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 export function AdminTransactions() {
@@ -28,6 +28,18 @@ export function AdminTransactions() {
     }
     fetchTxs();
   }, []);
+
+  const deleteTransaction = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this transaction?")) return;
+    try {
+      const { error } = await supabase.from("transactions").delete().eq("id", id);
+      if (error) throw error;
+      setTransactions(transactions.filter(t => t.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete transaction");
+    }
+  };
 
   const filtered = transactions.filter(t => {
     if (tab === 'Income') return t.type === 'income';
@@ -88,14 +100,24 @@ export function AdminTransactions() {
                <p className="font-bold text-slate-900 dark:text-white truncate">{t.category}</p>
                <p className="text-xs text-slate-500 truncate">{t.profiles?.full_name || t.profiles?.email || 'Unknown User'}</p>
             </div>
-            <div className="text-right flex-shrink-0">
-               <p className={cn(
-                 "font-bold",
-                 t.type === 'income' ? "text-emerald-500" : "text-slate-900 dark:text-white"
-               )}>
-                 {t.type === 'income' ? '+' : '-'}${Math.abs(t.amount).toFixed(2)}
-               </p>
-               <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+            <div className="text-right flex-shrink-0 flex items-center gap-4">
+               <div>
+                 <p className={cn(
+                   "font-bold",
+                   t.type === 'income' ? "text-emerald-500" : "text-slate-900 dark:text-white"
+                 )}>
+                   {t.type === 'income' ? '+' : '-'}${Math.abs(t.amount).toFixed(2)}
+                 </p>
+                 <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">{new Date(t.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+               </div>
+               
+               <button 
+                 onClick={() => deleteTransaction(t.id)}
+                 className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 bg-slate-50 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-900/30 rounded-lg transition-colors"
+                 title="Delete Transaction"
+               >
+                 <Trash2 size={16} />
+               </button>
             </div>
           </div>
         ))}

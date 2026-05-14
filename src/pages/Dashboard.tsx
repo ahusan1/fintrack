@@ -18,13 +18,14 @@ import { TransactionList } from "../components/transactions/TransactionList";
 import { TransactionForm } from "../components/transactions/TransactionForm";
 import { MonthlyChart as Charts } from "../components/charts/MonthlyChart";
 import { SpendingOverview } from "../components/dashboard/SpendingOverview";
+import { SubscriptionPlans } from "../components/dashboard/SubscriptionPlans";
 
 interface DashboardProps {
   activeTab: string;
 }
 
 export function Dashboard({ activeTab }: DashboardProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, userPlan } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [errorInfo, setErrorInfo] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -59,6 +60,10 @@ export function Dashboard({ activeTab }: DashboardProps) {
   }, []);
 
   const handleAddTransaction = () => {
+    if (userPlan === 'free' && transactions.length >= 50) {
+      alert("You have reached the limit of 50 transactions on the Free plan. Please upgrade to Pro in the Profile tab to add more.");
+      return;
+    }
     setEditingTransaction(undefined);
     setIsFormOpen(true);
   };
@@ -124,6 +129,10 @@ export function Dashboard({ activeTab }: DashboardProps) {
   };
 
   const exportToPDF = () => {
+    if (userPlan === 'free') {
+      alert("PDF Export is a Pro feature. Please upgrade to Pro in the Profile tab to use this feature.");
+      return;
+    }
     const doc = new jsPDF();
 
     const totalIncome = transactions
@@ -266,34 +275,38 @@ export function Dashboard({ activeTab }: DashboardProps) {
       </>
 
       {activeTab === "profile" && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 text-center">
-          <div className="w-24 h-24 rounded-full bg-indigo-500 relative flex items-center justify-center mx-auto mb-4 overflow-hidden ring-4 ring-slate-50 dark:ring-slate-950">
-            <span className="text-white font-bold text-3xl">
-              {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "U").charAt(0).toUpperCase()}
-            </span>
-            {user?.user_metadata?.avatar_url && (
-              <img
-                src={user.user_metadata.avatar_url}
-                alt="Profile"
-                className="w-full h-full object-cover absolute inset-0 z-10"
-                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              />
-            )}
+        <div className="flex flex-col gap-6">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 text-center">
+            <div className="w-24 h-24 rounded-full bg-indigo-500 relative flex items-center justify-center mx-auto mb-4 overflow-hidden ring-4 ring-slate-50 dark:ring-slate-950">
+              <span className="text-white font-bold text-3xl">
+                {(user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || "U").charAt(0).toUpperCase()}
+              </span>
+              {user?.user_metadata?.avatar_url && (
+                <img
+                  src={user.user_metadata.avatar_url}
+                  alt="Profile"
+                  className="w-full h-full object-cover absolute inset-0 z-10"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              )}
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              {user?.user_metadata?.full_name || user?.user_metadata?.name || "User"}
+            </h2>
+            <p className="text-slate-500 text-sm mb-6">{user?.email}</p>
+            <button
+              onClick={() => {
+                if (window.confirm("Are you sure you want to sign out?")) {
+                  logout();
+                }
+              }}
+              className="px-6 py-2 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 font-bold rounded-xl text-sm"
+            >
+              Sign Out
+            </button>
           </div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            {user?.user_metadata?.full_name || user?.user_metadata?.name || "User"}
-          </h2>
-          <p className="text-slate-500 text-sm mb-6">{user?.email}</p>
-          <button
-            onClick={() => {
-              if (window.confirm("Are you sure you want to sign out?")) {
-                logout();
-              }
-            }}
-            className="px-6 py-2 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 font-bold rounded-xl text-sm"
-          >
-            Sign Out
-          </button>
+          
+          <SubscriptionPlans />
         </div>
       )}
     </div>

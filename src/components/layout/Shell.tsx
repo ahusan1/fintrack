@@ -20,7 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
 
 export function Shell() {
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, userPlan, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const location = useLocation();
   const activeTab = location.pathname.substring(1) || "dashboard";
@@ -127,7 +127,7 @@ export function Shell() {
                 {user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]}
               </p>
               <p className="text-[10px] uppercase font-bold tracking-wider text-slate-500 truncate">
-                PRO PLAN
+                {userPlan === 'pro' ? 'PRO PLAN' : 'FREE PLAN'}
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { Search, UserX } from "lucide-react";
+import { Search, UserX, Trash2, Shield, MoreVertical } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 export function AdminUsers() {
@@ -28,6 +28,41 @@ export function AdminUsers() {
     }
     fetchUsers();
   }, []);
+
+  const toggleRole = async (userId: string, currentRole: string) => {
+    const newRole = currentRole === 'admin' ? 'user' : 'admin';
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', userId);
+      
+      if (error) throw error;
+      
+      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+    } catch (err) {
+      console.error('Failed to update role:', err);
+      alert('Failed to update user role');
+    }
+  };
+
+  const deleteUserData = async (userId: string) => {
+    if (!window.confirm("Are you sure you want to delete this user's data? This will remove their profile and all associated data.")) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+      
+      if (error) throw error;
+      
+      setUsers(users.filter(u => u.id !== userId));
+    } catch (err) {
+      console.error('Failed to delete user:', err);
+      alert('Failed to delete user data');
+    }
+  };
 
   const filteredUsers = users.filter(u => {
     const matchesSearch = 
@@ -102,13 +137,44 @@ export function AdminUsers() {
                )}
             </div>
             <div className="flex-1 min-w-0">
-               <p className="font-bold text-slate-900 dark:text-white truncate text-sm">{u.full_name || 'No Name'}</p>
+               <div className="flex items-center gap-2">
+                 <p className="font-bold text-slate-900 dark:text-white truncate text-sm">{u.full_name || 'No Name'}</p>
+                 {u.role === 'admin' && (
+                   <span className="px-1.5 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-widest flex items-center gap-1">
+                     <Shield size={10} />
+                     Admin
+                   </span>
+                 )}
+                 {u.plan === 'pro' && (
+                   <span className="px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[9px] font-bold uppercase tracking-widest">
+                     PRO
+                   </span>
+                 )}
+               </div>
                <p className="text-xs text-slate-500 truncate">{u.email}</p>
             </div>
-            <div className="flex-shrink-0">
-               <span className="px-2.5 py-1 rounded-full bg-emerald-100/50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+            <div className="flex-shrink-0 flex items-center gap-2">
+               <span className="px-2.5 py-1 rounded-full bg-emerald-100/50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider hidden sm:inline-block">
                  Active
                </span>
+
+               {/* Actions Menu (Simple inline for now) */}
+               <div className="flex items-center gap-1">
+                  <button 
+                    onClick={() => toggleRole(u.id, u.role)}
+                    className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-50 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-900/30 rounded-lg transition-colors group relative"
+                    title={u.role === 'admin' ? "Remove Admin" : "Make Admin"}
+                  >
+                    <Shield size={16} />
+                  </button>
+                  <button 
+                    onClick={() => deleteUserData(u.id)}
+                    className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 bg-slate-50 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-900/30 rounded-lg transition-colors group relative"
+                    title="Delete User Data"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+               </div>
             </div>
           </div>
         ))}

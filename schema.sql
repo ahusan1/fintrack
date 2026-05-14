@@ -5,11 +5,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   full_name TEXT,
   avatar_url TEXT,
   role TEXT DEFAULT 'user',
+  plan TEXT DEFAULT 'free',
   "createdAt" BIGINT DEFAULT (extract(epoch from now()) * 1000)::bigint
 );
 
--- Ensure role column exists if the table was previously created without it
+-- Ensure role and plan columns exist if the table was previously created without them
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'free';
 
 -- Turn on Row Level Security for profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -34,6 +36,35 @@ DROP POLICY IF EXISTS "Users can delete own profile." ON public.profiles;
 CREATE POLICY "Users can delete own profile."
   ON public.profiles FOR DELETE
   USING ( auth.uid() = id OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin') );
+
+-- Settings Table (for API keys, etc)
+CREATE TABLE IF NOT EXISTS public.settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    "updatedAt" BIGINT DEFAULT (extract(epoch from now()) * 1000)::bigint
+);
+
+ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Admins can manage settings" ON public.settings;
+CREATE POLICY "Admins can manage settings"
+ON public.settings FOR ALL
+USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Secure RPC for server.ts to fetch settings bypassing RLS
+CREATE OR REPLACE FUNCTION get_server_setting(setting_key text, server_secret text)
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Strict secret check
+  IF server_secret = 'server_api_secret_afin_2026' THEN
+    RETURN (SELECT value FROM public.settings WHERE key = setting_key);
+  END IF;
+  RETURN NULL;
+END;
+$$;
 
 -- Create a trigger to automatically create a profile when a new user signs up in Supabase Auth
 CREATE OR REPLACE FUNCTION public.handle_new_user()
