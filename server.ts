@@ -113,11 +113,12 @@ async function startServer() {
         setting_key: 'pro_plan_price',
         server_secret: SERVER_SECRET
       });
-      const amount = (data && !error) ? Number(data) : 999;
+      const parsedAmount = Number(data);
+      const amount = (data && !error && !isNaN(parsedAmount) && parsedAmount > 0) ? parsedAmount : 999;
       const currency = "INR";
 
       const options = {
-        amount: amount * 100, // amount in the smallest currency unit (paise for INR)
+        amount: Math.round(amount * 100), // amount in the smallest currency unit (paise for INR)
         currency,
         receipt,
       };
