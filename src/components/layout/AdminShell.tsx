@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, NavLink, useNavigate, Navigate } from "react-router-dom";
 import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Shield } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabase";
 import { cn } from "../../lib/utils";
 
 export function AdminShell() {
-  const { user } = useAuth();
-  
-  // Strict admin check (ideally based on DB role, but caching it via email for now)
-  const isAdmin = user?.email === "ahhacker37@gmail.com";
+  const { user, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-indigo-600/30 border-t-indigo-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return <Navigate to="/dashboard" replace />;

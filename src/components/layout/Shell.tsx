@@ -20,7 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
 
 export function Shell() {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const location = useLocation();
   const activeTab = location.pathname.substring(1) || "dashboard";
@@ -76,7 +76,7 @@ export function Shell() {
               id: "profile",
               path: "/profile",
             },
-            ...(user?.email === "ahhacker37@gmail.com" ? [{
+            ...(isAdmin ? [{
               name: "Admin",
               icon: Shield,
               id: "admin",

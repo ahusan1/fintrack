@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { Users, Database, ShieldAlert, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
+import { ArrowUpRight, Activity } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export function AdminDashboard() {
