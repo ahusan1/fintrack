@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { Search, UserX, Trash2, Shield, MoreVertical } from "lucide-react";
+import { Search, UserX, Trash2, Shield, MoreVertical, Star } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 export function AdminUsers() {
@@ -43,6 +43,23 @@ export function AdminUsers() {
     } catch (err) {
       console.error('Failed to update role:', err);
       alert('Failed to update user role');
+    }
+  };
+
+  const togglePlan = async (userId: string, currentPlan: string) => {
+    const newPlan = currentPlan === 'pro' ? 'free' : 'pro';
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ plan: newPlan })
+        .eq('id', userId);
+      
+      if (error) throw error;
+      
+      setUsers(users.map(u => u.id === userId ? { ...u, plan: newPlan } : u));
+    } catch (err) {
+      console.error('Failed to update plan:', err);
+      alert('Failed to update user plan');
     }
   };
 
@@ -160,6 +177,13 @@ export function AdminUsers() {
 
                {/* Actions Menu (Simple inline for now) */}
                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={() => togglePlan(u.id, u.plan)}
+                    className="p-2 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 bg-slate-50 hover:bg-amber-50 dark:bg-slate-800 dark:hover:bg-amber-900/30 rounded-lg transition-colors group relative"
+                    title={u.plan === 'pro' ? "Revoke Pro Plan" : "Grant Pro Plan"}
+                  >
+                    <Star size={16} />
+                  </button>
                   <button 
                     onClick={() => toggleRole(u.id, u.role)}
                     className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-slate-50 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-900/30 rounded-lg transition-colors group relative"

@@ -8,6 +8,7 @@ export function AdminSettings() {
   
   const [razorpayKeyId, setRazorpayKeyId] = useState("");
   const [razorpaySecret, setRazorpaySecret] = useState("");
+  const [proPlanPrice, setProPlanPrice] = useState("999");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
 
@@ -19,6 +20,9 @@ export function AdminSettings() {
 
         const { data: secretData } = await supabase.from('settings').select('value').eq('key', 'razorpay_key_secret').single();
         if (secretData) setRazorpaySecret(secretData.value);
+
+        const { data: priceData } = await supabase.from('settings').select('value').eq('key', 'pro_plan_price').single();
+        if (priceData) setProPlanPrice(priceData.value);
       } catch (err) {
         console.error("Failed to fetch settings config");
       }
@@ -44,6 +48,13 @@ export function AdminSettings() {
         updatedAt: Date.now() 
       });
       if (err2) throw err2;
+
+      const { error: err3 } = await supabase.from('settings').upsert({ 
+        key: 'pro_plan_price', 
+        value: proPlanPrice || '999', 
+        updatedAt: Date.now() 
+      });
+      if (err3) throw err3;
 
       // Refresh on backend
       await fetch('/api/razorpay/refresh-keys', { method: 'POST' });
@@ -121,6 +132,19 @@ export function AdminSettings() {
               className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all outline-none"
             />
             <p className="mt-1 text-[10px] text-slate-500">Required for server-side verification.</p>
+          </div>
+
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Pro Plan Price (INR)
+            </label>
+            <input
+              type="number"
+              value={proPlanPrice}
+              onChange={(e) => setProPlanPrice(e.target.value)}
+              placeholder="999"
+              className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all outline-none"
+            />
           </div>
 
           <button

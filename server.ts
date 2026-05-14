@@ -87,12 +87,35 @@ async function startServer() {
     res.json({ success });
   });
 
+  // Get Public Config
+  app.get("/api/config", async (req, res) => {
+    try {
+      const { data, error } = await supabase.rpc('get_server_setting', {
+        setting_key: 'pro_plan_price',
+        server_secret: SERVER_SECRET
+      });
+      const price = (data && !error) ? Number(data) : 999;
+      res.json({ pro_plan_price: price, currency: "INR" });
+    } catch (e) {
+      res.json({ pro_plan_price: 999, currency: "INR" });
+    }
+  });
+
   // Create Razorpay Order
   app.post("/api/razorpay/create-order", async (req, res) => {
     try {
-      const { amount, currency = "INR", receipt = "receipt#1" } = req.body;
+      const { receipt = "receipt#1" } = req.body;
       
       const rzp = await getRazorpay();
+      
+      // Fetch dynamic price
+      const { data, error } = await supabase.rpc('get_server_setting', {
+        setting_key: 'pro_plan_price',
+        server_secret: SERVER_SECRET
+      });
+      const amount = (data && !error) ? Number(data) : 999;
+      const currency = "INR";
+
       const options = {
         amount: amount * 100, // amount in the smallest currency unit (paise for INR)
         currency,

@@ -8,6 +8,7 @@ export function SubscriptionPlans() {
   const { user } = useAuth();
   const [currentPlan, setCurrentPlan] = useState<'free' | 'pro'>('free'); // In a real app, calculate from db
   const [isLoading, setIsLoading] = useState(false);
+  const [proPrice, setProPrice] = useState(999);
 
   // Fetch current plan
   React.useEffect(() => {
@@ -16,6 +17,16 @@ export function SubscriptionPlans() {
       const { data } = await supabase.from('profiles').select('plan').eq('id', user.id).single();
       if (data?.plan) {
         setCurrentPlan(data.plan);
+      }
+      
+      try {
+        const res = await fetch("/api/config");
+        const config = await res.json();
+        if (config.pro_plan_price) {
+          setProPrice(config.pro_plan_price);
+        }
+      } catch (err) {
+        console.error("Failed to fetch plan config:", err);
       }
     }
     fetchPlan();
@@ -47,7 +58,7 @@ export function SubscriptionPlans() {
       const orderRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: 9, currency: "USD", receipt: `rcptid_${user.id}` }),
+        body: JSON.stringify({ receipt: `rcptid_${user.id}` }),
       });
 
       const orderData = await orderRes.json();
@@ -157,7 +168,7 @@ export function SubscriptionPlans() {
           )}
           <div className="flex justify-between items-center mb-4">
             <h4 className="text-xl font-bold text-slate-900 dark:text-white">Basic</h4>
-            <span className="text-2xl font-black text-slate-900 dark:text-white">$0<span className="text-sm font-medium text-slate-500">/mo</span></span>
+            <span className="text-2xl font-black text-slate-900 dark:text-white">₹0<span className="text-sm font-medium text-slate-500">/mo</span></span>
           </div>
           <ul className="space-y-3 mb-8">
             {['Up to 50 transactions/month', 'Basic Analytics', 'Standard export (CSV)', 'Community support'].map((feature, i) => (
@@ -199,7 +210,7 @@ export function SubscriptionPlans() {
             <h4 className="text-xl font-bold text-indigo-900 dark:text-indigo-400 flex items-center gap-2">
               Pro <Zap size={18} className="text-indigo-500 fill-indigo-500" />
             </h4>
-            <span className="text-2xl font-black text-slate-900 dark:text-white">$9<span className="text-sm font-medium text-slate-500">/mo</span></span>
+            <span className="text-2xl font-black text-slate-900 dark:text-white">₹{proPrice}<span className="text-sm font-medium text-slate-500">/mo</span></span>
           </div>
           <ul className="space-y-3 mb-8">
             {[
