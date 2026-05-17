@@ -21,7 +21,9 @@ function getQueue(userId: string): Mutation[] {
   }
 }
 function saveQueue(userId: string, queue: Mutation[]) {
-  localStorage.setItem(getQueueKey(userId), JSON.stringify(queue));
+  try {
+    localStorage.setItem(getQueueKey(userId), JSON.stringify(queue));
+  } catch (e) {}
 }
 function getCache(userId: string): Transaction[] {
   try {
@@ -31,7 +33,9 @@ function getCache(userId: string): Transaction[] {
   }
 }
 function saveCache(userId: string, cache: Transaction[]) {
-  localStorage.setItem(getCacheKey(userId), JSON.stringify(cache));
+  try {
+    localStorage.setItem(getCacheKey(userId), JSON.stringify(cache));
+  } catch (e) {}
 }
 
 let syncInProgress = false;

@@ -14,6 +14,7 @@ import { AdminUsers } from "./pages/admin/AdminUsers";
 import { AdminTransactions } from "./pages/admin/AdminTransactions";
 import { AdminSettings } from "./pages/admin/AdminSettings";
 import { AdminReports } from "./pages/admin/AdminReports";
+import { AdminPlans } from "./pages/admin/AdminPlans";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -60,6 +61,7 @@ export default function App() {
               <Route path="users" element={<AdminUsers />} />
               <Route path="transactions" element={<AdminTransactions />} />
               <Route path="reports" element={<AdminReports />} />
+              <Route path="plans" element={<AdminPlans />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

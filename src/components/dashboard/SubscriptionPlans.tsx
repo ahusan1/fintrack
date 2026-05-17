@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
-import { Check, Star, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Check, Star, Zap, XCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { SubscriptionPlan } from '../../pages/admin/AdminPlans'; // Optional if not exporting from there. Instead inline below
+// import omitted
 
 export function SubscriptionPlans() {
   const { user } = useAuth();
-  const [currentPlan, setCurrentPlan] = useState<'free' | 'pro'>('free'); // In a real app, calculate from db
+  const [currentPlan, setCurrentPlan] = useState<string>('free'); 
   const [isLoading, setIsLoading] = useState(false);
-  const [proPrice, setProPrice] = useState(999);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [processingPlanId, setProcessingPlanId] = useState<string | null>(null);
 
   // Fetch current plan
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchPlan() {
       if (!user) return;
       const { data } = await supabase.from('profiles').select('plan').eq('id', user.id).single();
@@ -22,8 +25,31 @@ export function SubscriptionPlans() {
       try {
         const res = await fetch("/api/config");
         const config = await res.json();
-        if (config.pro_plan_price) {
-          setProPrice(config.pro_plan_price);
+        if (config.subscription_plans && config.subscription_plans.length > 0) {
+          setPlans(config.subscription_plans);
+        } else {
+          // Fallback if not configured
+          setPlans([
+            {
+              id: 'free',
+              name: 'Free',
+              price: 0,
+              interval: 'lifetime',
+              features: [
+                { id: '1', name: 'Up to 100 transactions/month', included: true }
+              ]
+            },
+            {
+              id: 'pro',
+              name: 'Pro',
+              price: config.pro_plan_price || 999,
+              interval: 'lifetime',
+              isPopular: true,
+              features: [
+                { id: '1', name: 'Unlimited transactions', included: true }
+              ]
+            }
+          ]);
         }
       } catch (err) {
         console.error("Failed to fetch plan config:", err);
@@ -42,8 +68,32 @@ export function SubscriptionPlans() {
     });
   };
 
-  const handleUpgrade = async () => {
+  const handleUpgrade = async (plan: any) => {
     if (!user) return;
+    
+    // Free plans don't need checkout
+    if (plan.price === 0) {
+      if (!window.confirm(`Are you sure you want to switch to the ${plan.name} plan?`)) return;
+      setProcessingPlanId(plan.id);
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ plan: plan.id })
+          .eq('id', user.id);
+          
+        if (error) throw error;
+        setCurrentPlan(plan.id);
+        alert(`Successfully switched to ${plan.name} plan.`);
+      } catch (error) {
+        console.error(error);
+        alert('Failed to update plan.');
+      } finally {
+        setProcessingPlanId(null);
+      }
+      return;
+    }
+    
+    setProcessingPlanId(plan.id);
     setIsLoading(true);
 
     try {
@@ -51,6 +101,7 @@ export function SubscriptionPlans() {
       if (!res) {
         alert("Razorpay SDK failed to load. Are you offline?");
         setIsLoading(false);
+        setProcessingPlanId(null);
         return;
       }
 
@@ -58,7 +109,7 @@ export function SubscriptionPlans() {
       const orderRes = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receipt: `rcptid_${user.id}` }),
+        body: JSON.stringify({ receipt: `rcptid_${user.id}`, planId: plan.id }),
       });
 
       let orderData;
@@ -74,10 +125,10 @@ export function SubscriptionPlans() {
 
       const options = {
         key: orderData.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID || "",
-        amount: orderData.amount,
+        amount: orderData.amount, // fetched properly from backend
         currency: orderData.currency,
         name: "Afin Track",
-        description: "Pro Subscription",
+        description: `${plan.name} Subscription`,
         order_id: orderData.id,
         handler: async function (response: any) {
           try {
@@ -92,20 +143,20 @@ export function SubscriptionPlans() {
             try {
               verifyData = await verifyRes.json();
             } catch (err) {
-              throw new Error("Payment verified by gateway, but server response is invalid. Please contact support.");
+               throw new Error("Payment verified by gateway, but server response is invalid. Please contact support.");
             }
 
             if (verifyData.success) {
               // Update DB
               const { error } = await supabase
                 .from("profiles")
-                .update({ plan: "pro" })
+                .update({ plan: plan.id })
                 .eq("id", user.id);
 
               if (error) throw error;
 
-              setCurrentPlan("pro");
-              alert("Successfully upgraded to Pro!");
+              setCurrentPlan(plan.id);
+              alert(`Successfully upgraded to ${plan.name}!`);
               window.location.reload(); // optionally reload to apply context changes
             } else {
               alert("Payment verification failed! Please contact support.");
@@ -132,124 +183,93 @@ export function SubscriptionPlans() {
       alert(error.message || 'Failed to upgrade plan.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleDowngrade = async () => {
-    if (!user || !window.confirm("Are you sure you want to cancel your Pro subscription?")) return;
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ plan: 'free' })
-        .eq('id', user.id);
-        
-      if (error) throw error;
-      
-      setCurrentPlan('free');
-      alert('Your subscription has been canceled.');
-    } catch (error) {
-      console.error(error);
-      alert('Failed to downgrade plan.');
-    } finally {
-      setIsLoading(false);
+      setProcessingPlanId(null);
     }
   };
 
   return (
     <div className="mt-8 text-left">
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Subscription Plan</h3>
-        <p className="text-sm text-slate-500">Manage your billing and subscription features.</p>
+      <div className="mb-6 text-center sm:text-left">
+        <h3 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Subscription Plans</h3>
+        <p className="text-slate-500 mt-1">Manage your billing and subscription features.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Free Plan */}
-        <div className={cn(
-          "relative bg-white dark:bg-slate-900 border rounded-2xl p-6 transition-all",
-          currentPlan === 'free' 
-            ? "border-slate-300 dark:border-slate-600 shadow-md ring-1 ring-slate-200 dark:ring-slate-700" 
-            : "border-slate-100 dark:border-slate-800 opacity-60"
-        )}>
-          {currentPlan === 'free' && (
-            <div className="absolute -top-3 left-6 px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider rounded-full border border-slate-200 dark:border-slate-700">
-              Current Plan
-            </div>
-          )}
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-xl font-bold text-slate-900 dark:text-white">Basic</h4>
-            <span className="text-2xl font-black text-slate-900 dark:text-white">₹0<span className="text-sm font-medium text-slate-500">/mo</span></span>
-          </div>
-          <ul className="space-y-3 mb-8">
-            {['Up to 50 transactions/month', 'Basic Analytics', 'Standard export (CSV)', 'Community support'].map((feature, i) => (
-              <li key={i} className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
-                <Check size={16} className="text-slate-400" />
-                {feature}
-              </li>
-            ))}
-          </ul>
-          {currentPlan === 'free' ? (
-            <button disabled className="w-full py-3 px-4 rounded-xl font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 disabled:cursor-not-allowed">
-              Active
-            </button>
-          ) : (
-            <button 
-              onClick={handleDowngrade}
-              disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            >
-              Downgrade to Basic
-            </button>
-          )}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {plans.map((plan) => {
+           const isActive = currentPlan === plan.id;
+           const isProcessing = processingPlanId === plan.id;
 
-        {/* Pro Plan */}
-        <div className={cn(
-          "relative bg-gradient-to-b from-indigo-50 to-white dark:from-indigo-950/20 dark:to-slate-900 border rounded-2xl p-6 transition-all",
-          currentPlan === 'pro' 
-            ? "border-indigo-500 shadow-xl shadow-indigo-500/10 ring-2 ring-indigo-500" 
-            : "border-indigo-100 dark:border-indigo-900/50 hover:border-indigo-300 dark:hover:border-indigo-700"
-        )}>
-          {currentPlan === 'pro' && (
-            <div className="absolute -top-3 left-6 px-3 py-1 bg-indigo-500 text-white text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1 shadow-sm">
-              <Star size={12} className="fill-white" />
-              Current Plan
-            </div>
-          )}
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="text-xl font-bold text-indigo-900 dark:text-indigo-400 flex items-center gap-2">
-              Pro <Zap size={18} className="text-indigo-500 fill-indigo-500" />
-            </h4>
-            <span className="text-2xl font-black text-slate-900 dark:text-white">₹{proPrice}<span className="text-sm font-medium text-slate-500">/mo</span></span>
-          </div>
-          <ul className="space-y-3 mb-8">
-            {[
-              'Unlimited transactions', 
-              'Advanced AI analytics (Coming soon)', 
-              'PDF & CSV detailed exports', 
-              'Priority support', 
-              'Custom categories'
-            ].map((feature, i) => (
-              <li key={i} className="flex items-center gap-3 text-sm text-slate-700 dark:text-slate-300 font-medium">
-                <Check size={16} className="text-indigo-500" />
-                {feature}
-              </li>
-            ))}
-          </ul>
-          {currentPlan === 'pro' ? (
-            <button disabled className="w-full py-3 px-4 rounded-xl font-bold text-white bg-indigo-500 disabled:cursor-not-allowed shadow-md">
-              Active
-            </button>
-          ) : (
-            <button 
-              onClick={handleUpgrade}
-              disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/30 transition-all active:scale-[0.98]"
-            >
-              {isLoading ? 'Processing...' : 'Upgrade to Pro'}
-            </button>
-          )}
-        </div>
+           return (
+             <div key={plan.id} className={cn(
+               "relative bg-white dark:bg-slate-900 border rounded-2xl p-6 transition-all flex flex-col",
+               isActive 
+                 ? "border-emerald-500 shadow-md ring-1 ring-emerald-500/50" 
+                 : plan.isPopular
+                   ? "border-indigo-500 shadow-xl shadow-indigo-500/10 ring-2 ring-indigo-500 transform lg:-translate-y-2"
+                   : "border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-700"
+             )}>
+               {isActive && (
+                 <div className="absolute -top-3 left-6 px-3 py-1 bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-sm">
+                   Current Plan
+                 </div>
+               )}
+               {plan.isPopular && !isActive && (
+                 <div className="absolute -top-3 left-6 px-3 py-1 bg-indigo-500 text-white text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1 shadow-sm">
+                   <Star size={12} className="fill-white" />
+                   Most Popular
+                 </div>
+               )}
+               
+               <div className="flex flex-col mb-4">
+                 <h4 className={cn("text-xl font-bold", plan.isPopular ? "text-indigo-600 dark:text-indigo-400" : "text-slate-900 dark:text-white")}>
+                   {plan.name}
+                 </h4>
+                 <div className="flex items-baseline gap-1 mt-2">
+                   <span className="text-3xl font-black text-slate-900 dark:text-white">
+                      {plan.price === 0 ? "Free" : `₹${plan.price}`}
+                   </span>
+                   {plan.price > 0 && <span className="text-sm font-medium text-slate-500">/{plan.interval === 'lifetime' ? 'once' : plan.interval === 'yearly' ? 'yr' : 'mo'}</span>}
+                 </div>
+               </div>
+               
+               <div className="flex-1">
+                 <ul className="space-y-3 mb-8 text-sm">
+                   {plan.features.map((feature: any, i: number) => (
+                     <li key={i} className="flex items-start gap-3">
+                       {feature.included ? (
+                          <Check size={16} className={cn("mt-0.5 shrink-0", plan.isPopular ? "text-indigo-500" : "text-slate-400")} />
+                       ) : (
+                          <XCircle size={16} className="mt-0.5 shrink-0 text-slate-300 dark:text-slate-600" />
+                       )}
+                       <span className={feature.included ? "text-slate-700 dark:text-slate-300 font-medium" : "text-slate-400 dark:text-slate-500 line-through"}>
+                         {feature.name}
+                       </span>
+                     </li>
+                   ))}
+                 </ul>
+               </div>
+
+               {isActive ? (
+                 <button disabled className="w-full py-3 px-4 rounded-xl font-bold text-white bg-emerald-500 disabled:opacity-80 shadow-md">
+                   Active
+                 </button>
+               ) : (
+                 <button 
+                   onClick={() => handleUpgrade(plan)}
+                   disabled={isLoading}
+                   className={cn(
+                     "w-full py-3 px-4 rounded-xl font-bold transition-all active:scale-[0.98]",
+                     plan.isPopular 
+                       ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/30"
+                       : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
+                   )}
+                 >
+                   {isProcessing ? 'Processing...' : plan.price === 0 ? 'Downgrade' : 'Upgrade'}
+                 </button>
+               )}
+             </div>
+           );
+        })}
       </div>
     </div>
   );

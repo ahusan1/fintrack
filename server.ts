@@ -98,21 +98,35 @@ async function startServer() {
   // Get Public Config
   app.get("/api/config", async (req, res) => {
     try {
-      const { data, error } = await supabase.rpc('get_server_setting', {
+      const { data: priceData, error: priceError } = await supabase.rpc('get_server_setting', {
         setting_key: 'pro_plan_price',
         server_secret: SERVER_SECRET
       });
-      const price = (data && !error) ? Number(data) : 999;
-      res.json({ pro_plan_price: price, currency: "INR" });
+      const price = (priceData && !priceError) ? Number(priceData) : 999;
+      
+      const { data: plansData, error: plansError } = await supabase.rpc('get_server_setting', {
+        setting_key: 'subscription_plans',
+        server_secret: SERVER_SECRET
+      });
+      let subscriptionPlans = [];
+      if (plansData && !plansError) {
+        try {
+          subscriptionPlans = JSON.parse(plansData);
+        } catch (e) {
+          // invalid json
+        }
+      }
+      
+      res.json({ pro_plan_price: price, currency: "INR", subscription_plans: subscriptionPlans });
     } catch (e) {
-      res.json({ pro_plan_price: 999, currency: "INR" });
+      res.json({ pro_plan_price: 999, currency: "INR", subscription_plans: [] });
     }
   });
 
   // Create Razorpay Order
   app.post("/api/razorpay/create-order", async (req, res) => {
     try {
-      let { receipt = "receipt#1" } = req.body;
+      let { receipt = "receipt#1", planId = "pro" } = req.body;
       
       // Ensure receipt is max 40 chars as per Razorpay requirements
       if (receipt && receipt.length > 40) {
@@ -121,13 +135,36 @@ async function startServer() {
       
       const rzp = await getRazorpay();
       
-      // Fetch dynamic price
-      const { data, error } = await supabase.rpc('get_server_setting', {
-        setting_key: 'pro_plan_price',
+      // Fetch plans to determine correct price
+      const { data: plansData } = await supabase.rpc('get_server_setting', {
+        setting_key: 'subscription_plans',
         server_secret: SERVER_SECRET
       });
-      const parsedAmount = Number(data);
-      const amount = (data && !error && !isNaN(parsedAmount) && parsedAmount > 0) ? parsedAmount : 999;
+      
+      let amount = 999;
+      if (plansData) {
+         try {
+             const plans = JSON.parse(plansData);
+             const plan = plans.find((p: any) => p.id === planId);
+             if (plan) {
+                 amount = Number(plan.price);
+             }
+         } catch(e) {}
+      } else {
+         // Fallback to pro_plan_price
+         const { data: priceData } = await supabase.rpc('get_server_setting', {
+           setting_key: 'pro_plan_price',
+           server_secret: SERVER_SECRET
+         });
+         if (priceData && !isNaN(Number(priceData))) {
+             amount = Number(priceData);
+         }
+      }
+
+      if (isNaN(amount) || amount <= 0) {
+         throw new Error("Invalid plan price");
+      }
+
       const currency = "INR";
 
       const options = {
@@ -137,7 +174,7 @@ async function startServer() {
       };
 
       const order = await rzp.orders.create(options);
-      res.json({ ...order, key_id: cachedKeyId }); // Sending key_id to client
+      res.json({ ...order, amount, currency, key_id: cachedKeyId }); // Sending key_id to client
     } catch (error: any) {
       console.error("Razorpay order error:", error?.statusCode, error?.error?.description || error?.message || error);
       res.status(500).json({ error: error?.error?.description || error?.message || "Failed to create order" });

@@ -5,7 +5,11 @@ export function InstallPWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isDismissed, setIsDismissed] = useState(() => {
-    return sessionStorage.getItem('pwaPromptDismissed') === 'true';
+    try {
+      return sessionStorage.getItem('pwaPromptDismissed') === 'true';
+    } catch (e) {
+      return false;
+    }
   });
 
   useEffect(() => {
@@ -46,7 +50,9 @@ export function InstallPWA() {
 
   const handleDismiss = () => {
     setIsDismissed(true);
-    sessionStorage.setItem('pwaPromptDismissed', 'true');
+    try {
+      sessionStorage.setItem('pwaPromptDismissed', 'true');
+    } catch (e) {}
   };
 
   if (!isInstallable || isDismissed) return null;

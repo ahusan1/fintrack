@@ -54,6 +54,7 @@ export default defineConfig(({mode}) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,png,svg,json,woff,woff2}'],
+          navigateFallback: '/index.html',
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/.*/i,

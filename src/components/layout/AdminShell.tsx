@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, NavLink, useNavigate, Navigate } from "react-router-dom";
-import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Shield } from "lucide-react";
+import { LayoutDashboard, Users, CreditCard, BarChart3, Settings, Shield, Package } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { cn } from "../../lib/utils";
@@ -25,6 +25,7 @@ export function AdminShell() {
     { name: "Users", id: "users", icon: Users },
     { name: "Transactions", id: "transactions", icon: CreditCard },
     { name: "Reports", id: "reports", icon: BarChart3 },
+    { name: "Plans", id: "plans", icon: Package },
     { name: "Settings", id: "settings", icon: Settings },
   ];
 
