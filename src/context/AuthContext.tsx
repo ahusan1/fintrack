@@ -31,24 +31,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // Try reading from cache first for immediate offline support
       try {
-        const { data, error } = await supabase
+        const cachedRole = localStorage.getItem(`role_${currentUser.id}`);
+        const cachedPlan = localStorage.getItem(`plan_${currentUser.id}`);
+        if (cachedRole) setIsAdmin(cachedRole === 'admin');
+        if (cachedPlan) setUserPlan(cachedPlan as 'free' | 'pro');
+      } catch (e) {}
+
+      // If clearly offline, don't block
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+         setLoading(false);
+         // We can exit early, cache is already set
+         return;
+      }
+
+      try {
+         // Add a 5 second timeout to prevent hanging on slow connections
+         const fetchPromise = supabase
           .from("profiles")
           .select("role, plan")
           .eq("id", currentUser.id)
           .single();
 
-        if (error) {
-          console.error("Error fetching user role:", error);
-          setIsAdmin(false);
-          setUserPlan('free');
-        } else {
-          setIsAdmin(data?.role === 'admin');
-          setUserPlan(data?.plan === 'pro' ? 'pro' : 'free');
+         const timeoutPromise = new Promise<any>((_, reject) => {
+            setTimeout(() => reject(new Error("Timeout checking role")), 5000);
+         });
+
+        const result = await Promise.race([fetchPromise, timeoutPromise]);
+        
+        if (result && !result.error && result.data) {
+          setIsAdmin(result.data.role === 'admin');
+          setUserPlan(result.data.plan === 'pro' ? 'pro' : 'free');
+          try {
+            localStorage.setItem(`role_${currentUser.id}`, result.data.role || 'user');
+            localStorage.setItem(`plan_${currentUser.id}`, result.data.plan || 'free');
+          } catch(e) {}
         }
       } catch (err) {
-        setIsAdmin(false);
-        setUserPlan('free');
+        console.error("Error fetching user role:", err);
+        // Do not override with false/free if we already have cached values, 
+        // to avoid degrading experience on transient errors
       } finally {
         setLoading(false);
       }

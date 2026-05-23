@@ -17,6 +17,7 @@ interface SummaryCardsProps {
 }
 
 export function SummaryCards({ transactions, onExportPDF }: SummaryCardsProps) {
+  // Calculate total stats
   const stats = transactions.reduce(
     (acc, curr) => {
       if (curr.type === "income") {
@@ -30,6 +31,47 @@ export function SummaryCards({ transactions, onExportPDF }: SummaryCardsProps) {
   );
 
   const balance = stats.income - stats.expense;
+
+  // Calculate trends vs last month
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  
+  const lastMonthDate = new Date(now);
+  lastMonthDate.setMonth(now.getMonth() - 1);
+  const lastMonth = lastMonthDate.getMonth();
+  const lastMonthYear = lastMonthDate.getFullYear();
+
+  let incomeThisMonth = 0;
+  let expenseThisMonth = 0;
+  let incomeLastMonth = 0;
+  let expenseLastMonth = 0;
+
+  transactions.forEach((t) => {
+    const tDate = new Date(t.date);
+    const m = tDate.getMonth();
+    const y = tDate.getFullYear();
+
+    if (t.type === "income") {
+      if (m === currentMonth && y === currentYear) incomeThisMonth += t.amount;
+      if (m === lastMonth && y === lastMonthYear) incomeLastMonth += t.amount;
+    } else {
+      if (m === currentMonth && y === currentYear) expenseThisMonth += t.amount;
+      if (m === lastMonth && y === lastMonthYear) expenseLastMonth += t.amount;
+    }
+  });
+
+  const balanceThisMonth = incomeThisMonth - expenseThisMonth;
+  const balanceLastMonth = incomeLastMonth - expenseLastMonth;
+
+  const calculateChange = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? 100 : (current < 0 ? -100 : 0);
+    return ((current - previous) / previous) * 100;
+  };
+
+  const balanceChange = calculateChange(balanceThisMonth, balanceLastMonth);
+  const incomeChange = calculateChange(incomeThisMonth, incomeLastMonth);
+  const expenseChange = calculateChange(expenseThisMonth, expenseLastMonth);
 
   return (
     <div className="flex flex-col gap-4">
@@ -65,8 +107,12 @@ export function SummaryCards({ transactions, onExportPDF }: SummaryCardsProps) {
           </h3>
           <div className="flex items-center justify-between">
             <p className="inline-flex items-center gap-1 text-xs font-bold bg-emerald-700/50 hover:bg-emerald-700/70 py-1.5 px-3 rounded-full transition-colors backdrop-blur-sm cursor-pointer">
-              <ArrowUpRight size={14} className="text-emerald-200" />
-              {balance >= 0 ? "+12.5%" : "-2.1%"} from last month
+              {balanceChange >= 0 ? (
+                <ArrowUpRight size={14} className="text-emerald-200" />
+              ) : (
+                <ArrowDownRight size={14} className="text-emerald-200" />
+              )}
+              {balanceChange >= 0 ? "+" : ""}{balanceChange.toFixed(1)}% from last month
             </p>
             <button
               onClick={onExportPDF}
@@ -89,7 +135,9 @@ export function SummaryCards({ transactions, onExportPDF }: SummaryCardsProps) {
           <h3 className="text-lg font-bold tracking-tight mb-1 text-slate-800 dark:text-slate-100">
             {formatCurrency(stats.income)}
           </h3>
-          <p className="text-xs font-semibold text-emerald-500">+8.6%</p>
+          <p className={cn("text-xs font-semibold", incomeChange >= 0 ? "text-emerald-500" : "text-rose-500")}>
+            {incomeChange >= 0 ? "+" : ""}{incomeChange.toFixed(1)}%
+          </p>
         </div>
 
         {/* Expense Card */}
@@ -100,7 +148,9 @@ export function SummaryCards({ transactions, onExportPDF }: SummaryCardsProps) {
           <h3 className="text-lg font-bold tracking-tight mb-1 text-slate-800 dark:text-slate-100">
             {formatCurrency(stats.expense)}
           </h3>
-          <p className="text-xs font-semibold text-rose-500">-3.4%</p>
+          <p className={cn("text-xs font-semibold", expenseChange <= 0 ? "text-emerald-500" : "text-rose-500")}>
+            {expenseChange > 0 ? "+" : ""}{expenseChange.toFixed(1)}%
+          </p>
         </div>
       </div>
     </div>
